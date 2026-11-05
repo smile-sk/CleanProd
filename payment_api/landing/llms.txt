@@ -1,0 +1,32 @@
+# CleanTrade Payment API
+
+> CleanTrade Payment API - USDT (TRC20) payment gateway with unique-amount detection and webhooks. No middlemen, no percentage fees. The buyer pays to the merchant's own TRC20 wallet, passed in each order.
+
+## Key links
+
+- [Main site](https://pay.cleantrade.info/): landing, pricing and product overview
+- [Integration Guide](https://pay.cleantrade.info/integrate.html): how to accept USDT in 5 minutes (Python, cURL, JavaScript examples)
+- [API Reference](https://pay.cleantrade.info/docs): Swagger UI with the full OpenAPI specification
+- [OpenAPI JSON](https://pay.cleantrade.info/openapi.json): machine-readable API specification
+- [Subscribe](https://pay.cleantrade.info/subscribe.html): choose a plan and get an API key
+- [Full text for LLMs](https://pay.cleantrade.info/llms-full.txt): complete product documentation in Markdown
+- [Acceptable Use Policy](https://pay.cleantrade.info/aup.html): what you may and may not accept payments for
+
+## Pricing
+
+| Plan | Price | Orders |
+| --- | --- | --- |
+| Free | $0/mo | up to 5 |
+| Starter | $9.99/mo | up to 100 |
+| Pro | $29.99/mo | up to 3000 |
+| Business | $79.99/mo | unlimited |
+| Starter Yearly | $99.90/yr (12 months for the price of 10) | up to 100 |
+| Pro Yearly | $299.90/yr (12 months for the price of 10) | up to 3000 |
+| Business Yearly | $799.90/yr (12 months for the price of 10) | unlimited |
+
+## How it works
+
+1. Merchant creates an order via POST /v1/orders with their own TRC20 wallet and receives a unique amount (e.g. 9.57 USDT) for that wallet.
+2. The buyer sends exactly that amount to that wallet.
+3. CleanTrade's poller scans that address every ~30 seconds; when a transfer with that amount arrives after the order was created, the order becomes paid.
+4. A webhook (with tx_id) wakes the merchant's server for auto-delivery of a key, file or access.

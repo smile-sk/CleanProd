@@ -1,0 +1,46 @@
+ Why flat-rate pricing beats percentage fees on crypto payment gateways
+
+Most crypto gateways take a percentage of every payment. The leaders - NOWPayments and Plisio - charge 0.5% per transaction; Coinbase Commerce, CoinGate and BitPay sit at 1% or more. It sounds small. Let's do the math that actually matters.
+
+ The honest math
+
+Say a gateway takes 0.5% per payment. Here's what that costs at different monthly volumes, next to a flat $29.99 subscription (CleanTrade Pro):
+
+Monthly volume 0.5% gateway fee Flat $29.99 Difference
+--- --- --- ---
+$1,000 $5 $29.99 percentage wins by $24.99
+$3,000 $15 $29.99 percentage wins by $14.99
+$6,000 $30 $29.99 ~break-even
+$10,000 $50 $29.99 flat wins by $20.01
+$50,000 $250 $29.99 flat wins by $220.01
+
+Be honest about the break-even: a 0.5% gateway is cheaper below roughly $6,000/month (for the $9.99 Starter tier, the break-even is ~$2,000/month). Flat pricing wins as you scale past that, and the gap only widens from there.
+
+ Why percentage fees feel harmless but aren't
+
+1. They scale against you. Percentage fees grow with your success. A flat fee stays flat. Your cost structure should be predictable, not a bet against your own growth.
+2. They stack with everything else. Network fees, FX spread on crypto-to-fiat, withdrawal fees - the "0.5%" is rarely the only cost.
+3. They punish high-ticket items. Sell a $499 course at 1%? That's $5 per sale. At volume, it adds up.
+
+Flat pricing means: you know your costs, forever. $29.99/month, 0% per payment, no surprise deductions.
+
+ The real reason to care isn't the fee - it's custody and DX
+
+Flat vs percentage is a real question, but it's the second question. The first is: where does the money live?
+
+- Custodial gateways hold your funds on their balance until you withdraw - and can freeze or delay payouts.
+- Non-custodial means the payment lands directly on your own TRC20 wallet from the first second.
+
+CleanTrade is non-custodial and flat: $29.99/month (Pro), 0% per payment, money straight to your wallet, no KYC, API key in about a minute, webhooks with retries.
+
+ The one case where percentage wins
+
+If you process under ~$6,000/month, a 0.5% gateway is cheaper than $29.99 flat. That's exactly why a good flat-rate provider also offers a free tier - so small merchants can start free and grow into flat pricing on the same integration, without switching gateways twice.
+
+ Bottom line
+
+Flat pricing isn't a magic 10x saving - at realistic competitor rates it wins by a margin, not an order of magnitude. The bet worth making is on self-custody and DX: a gateway that never touches your money and takes three lines of code to integrate.
+
+---
+
+About the author: Stas K. runs CleanTrade (pay.cleantrade.info), a non-custodial USDT (TRC20) payment gateway with 0% transaction fees and a free plan. The SDK is open source at github.com/smile-sk/cleantrade-python.

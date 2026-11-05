@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="shortcut icon" href="/favicon.ico">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="title">CleanTrade Payment API - accept USDT in your bot in one evening</title>
+<meta name="description" content="Accept USDT (TRC20) with unique-amount payments and auto-delivery. No infrastructure: order → payment → webhook → auto-delivery.">
+<link rel="canonical" href="https://pay.cleantrade.info/">
+<meta name="trustpilot-one-time-domain-verification-id" content="d54d7923-7dca-4e97-bb29-6da2e8f4dc44"/>
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#070b16">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CleanTrade Payment API">
+<meta property="og:url" content="https://pay.cleantrade.info/">
+<meta property="og:title" content="CleanTrade Payment API - accept USDT in your bot in one evening">
+<meta property="og:description" content="Accept USDT (TRC20) in your bot in one evening. Payment API with unique amounts and webhooks. No middlemen, no percentage fees.">
+<meta property="og:image" content="https://pay.cleantrade.info/og-image.png">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="uk_UA">
+<meta property="og:locale:alternate" content="ru_RU">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="CleanTrade Payment API - accept USDT in your bot in one evening">
+<meta name="twitter:description" content="USDT (TRC20) payment API: unique amounts, webhooks, auto-delivery. No middlemen, no percentage fees.">
+<meta name="twitter:image" content="https://pay.cleantrade.info/og-image.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Organization","name":"CleanTrade","url":"https://pay.cleantrade.info/","logo":"https://pay.cleantrade.info/favicon.png","sameAs":["https://t.me/CleanTradeSupport_bot?start=pay"]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":"CleanTrade Payment API","url":"https://pay.cleantrade.info/"}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"CleanTrade Payment API","url":"https://pay.cleantrade.info/","applicationCategory":"DeveloperApplication","operatingSystem":"Any","description":"USDT (TRC20) payment API with unique-amount detection and webhooks. No middlemen, no percentage fees.","offers":{"@type":"AggregateOffer","lowPrice":"0","highPrice":"799.90","priceCurrency":"USD","offerCount":"7","offers":[{"@type":"Offer","name":"Free","price":"0","priceCurrency":"USD"},{"@type":"Offer","name":"Starter","price":"9.99","priceCurrency":"USD"},{"@type":"Offer","name":"Pro","price":"29.99","priceCurrency":"USD"},{"@type":"Offer","name":"Business","price":"79.99","priceCurrency":"USD"},{"@type":"Offer","name":"Starter Yearly","price":"99.90","priceCurrency":"USD"},{"@type":"Offer","name":"Pro Yearly","price":"299.90","priceCurrency":"USD"},{"@type":"Offer","name":"Business Yearly","price":"799.90","priceCurrency":"USD"}]}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How does CleanTrade detect payments?","acceptedAnswer":{"@type":"Answer","text":"Each order gets a unique amount (e.g. 9.57 USDT), unique within that wallet. The buyer sends exactly that amount to your TRC20 address from the order. Our poller scans that address every 30 seconds; when a transfer with that amount arrives after the order was created, the order becomes paid and your webhook fires."}},{"@type":"Question","name":"Where do the payments go?","acceptedAnswer":{"@type":"Answer","text":"To the TRC20 wallet you set in the order - we never hold the money and we do not open wallets for you. Two merchants can use the same amount, because matching is per wallet."}},{"@type":"Question","name":"What are the fees?","acceptedAnswer":{"@type":"Answer","text":"No percentage. Free plan: $0 (up to 5 orders/month). Paid plans are flat subscriptions: Starter $9.99, Pro $29.99, Business $79.99 per month, or $99.90/$299.90/$799.90 per year (12 months for the price of 10)."}},{"@type":"Question","name":"Do I need KYC or registration?","acceptedAnswer":{"@type":"Answer","text":"No. Get an API key in about a minute - no documents, no business registration, no approval queue."}},{"@type":"Question","name":"Which blockchain and token?","acceptedAnswer":{"@type":"Answer","text":"USDT on TRC20 (Tron). The buyer pays to the TRC20 address the API returned; no smart contracts and no extra gas for you."}},{"@type":"Question","name":"How fast is payment detection?","acceptedAnswer":{"@type":"Answer","text":"The poller checks every ~30 seconds, so orders usually become paid within a minute of the transfer."}},{"@type":"Question","name":"How is this different from @CryptoBot / Crypto Pay?","acceptedAnswer":{"@type":"Answer","text":"Both take USDT in a Telegram bot. The difference is the shape: @CryptoBot is a bot with its own internal balance and a Telegram UI; CleanTrade is a plain HTTP API that your own code drives - unique amounts, webhooks, auto-delivery."}},{"@type":"Question","name":"Why not self-host BTCPay Server?","acceptedAnswer":{"@type":"Answer","text":"BTCPay is free, powerful and non-custodial if you want to run and maintain your own node. CleanTrade is the same idea as a managed API: no server, no chain-sync, no updates to babysit."}}]}
+</script>
+
+<style>
+  :root{
+    --bg:#070b16; --panel:rgba(17,25,46,.72); --line:rgba(120,150,210,.16);
+    --text:#e9eefb; --muted:#93a1c3; --acc:#4f8cff; --acc2:#2ecc8f; --warn:#ffb84d;
+    --glass:rgba(255,255,255,.04); --radius:16px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);color:var(--text);
+    font:16px/1.55 -apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+    overflow-x:hidden;
+  }
+  /* ---- animated aurora background ---- */
+  .bgfx{position:fixed;inset:0;z-index:-2;overflow:hidden;background:var(--bg)}
+  .bgfx::before{
+    content:"";position:absolute;inset:-20%;
+    background:
+      radial-gradient(38% 32% at 22% 18%, rgba(46,204,143,.20), transparent 60%),
+      radial-gradient(42% 36% at 78% 26%, rgba(79,140,255,.18), transparent 62%),
+      radial-gradient(50% 42% at 50% 88%, rgba(120,80,255,.14), transparent 64%),
+      radial-gradient(30% 26% at 88% 78%, rgba(46,204,143,.12), transparent 60%);
+    filter:blur(24px);
+    animation:aurora 26s ease-in-out infinite alternate;
+  }
+  @keyframes aurora{
+    0%{transform:translate3d(-2%,-1%,0) scale(1) rotate(0deg)}
+    50%{transform:translate3d(2%,2%,0) scale(1.08) rotate(2deg)}
+    100%{transform:translate3d(-1%,1%,0) scale(1.04) rotate(-2deg)}
+  }
+  .bgfx::after{
+    content:"";position:absolute;inset:0;opacity:.5;
+    background-image:
+      linear-gradient(rgba(120,150,210,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(120,150,210,.05) 1px, transparent 1px);
+    background-size:44px 44px;
+    mask-image:radial-gradient(70% 60% at 50% 30%, #000 30%, transparent 78%);
+  }
+  .wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+  /* ---- header ---- */
+  header{position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);
+         background:rgba(7,11,22,.72);border-bottom:1px solid var(--line)}
+  .hrow{display:flex;align-items:center;justify-content:space-between;gap:16px;height:64px}
+  .logo{font-weight:800;font-size:18px;letter-spacing:.3px;display:flex;align-items:center;gap:10px}
+  .logo .dot{width:12px;height:12px;border-radius:50%;background:var(--acc2);
+             box-shadow:0 0 12px var(--acc2);animation:pulse 2.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+  .logo span{color:var(--acc2)}
+  .hnav{display:flex;align-items:center;gap:14px;margin-right:6px}
+.hright{display:flex;align-items:center;gap:14px}
+  .hnav a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:700;padding:7px 12px;border-radius:9px;transition:.2s}
+  .hnav a:hover{color:var(--text);background:var(--glass)}
+  .lang{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+  .lang button{background:transparent;border:none;color:var(--muted);font-size:13px;font-weight:700;
+               padding:6px 14px;border-radius:8px;cursor:pointer;letter-spacing:.4px;transition:.2s;font-family:inherit}
+  .lang button:hover{color:var(--text);background:rgba(46,204,143,.08)}
+  .lang button.active{background:var(--acc2);color:#05231a;box-shadow:0 2px 10px rgba(46,204,143,.35)}
+  /* ---- hero ---- */
+  .hero{padding:74px 0 40px;text-align:center}
+  .badge{display:inline-flex;align-items:center;gap:8px;background:var(--glass);
+         border:1px solid var(--line);border-radius:30px;padding:7px 16px;
+         font-size:13px;font-weight:600;color:var(--acc2);letter-spacing:.6px;margin-bottom:22px}
+  .badge i{width:7px;height:7px;border-radius:50%;background:var(--acc2);box-shadow:0 0 8px var(--acc2)}
+  .hero h1{font-size:44px;line-height:1.14;max-width:800px;margin:0 auto 18px;font-weight:800;
+           background:linear-gradient(115deg,#fff 20%,#bcd4ff 55%,#7fe8c0 90%);
+           -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hero p{color:var(--muted);font-size:18px;max-width:660px;margin:0 auto 32px}
+  .cta{display:inline-block;background:linear-gradient(135deg,var(--acc2),#1fae7c);color:#05231a;
+       text-decoration:none;padding:15px 36px;border-radius:12px;font-weight:800;font-size:17px;
+       box-shadow:0 8px 30px rgba(46,204,143,.28);transition:.2s}
+  .cta:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(46,204,143,.4)}
+  .cta.ghost{background:var(--glass);border:1px solid var(--line);color:var(--text);
+             box-shadow:none;margin-left:12px}
+  .cta.ghost:hover{border-color:var(--acc);box-shadow:0 8px 26px rgba(79,140,255,.22);transform:none}
+  .hint{margin-top:14px;font-size:13px;color:var(--muted);opacity:.8}
+  /* ---- flow diagram ---- */
+  .flow{max-width:880px;margin:46px auto 10px;background:var(--panel);border:1px solid var(--line);
+        border-radius:var(--radius);padding:14px 10px;backdrop-filter:blur(8px)}
+  .flow svg{width:100%;height:auto;display:block}
+  .fnode rect{fill:rgba(10,16,32,.85);stroke:var(--line);stroke-width:1.2;rx:12}
+  .fnode .ic{fill:rgba(46,204,143,.14)}
+  .fnode .icb{stroke:var(--acc2);stroke-width:1.4}
+  .fnode .tt{fill:var(--text);font-size:14px;font-weight:700}
+  .fnode .st{fill:var(--muted);font-size:11.5px}
+  .farr line,.farr path{stroke:var(--acc2);stroke-width:1.6;stroke-dasharray:6 7;
+        animation:dash 1.6s linear infinite;opacity:.85}
+  @keyframes dash{to{stroke-dashoffset:-26}}
+  .farr .al{fill:var(--muted);font-size:10.5px;letter-spacing:.3px}
+  .fdot{fill:var(--acc2);opacity:.9;animation:pulse 2s ease-in-out infinite}
+  /* ---- steps ---- */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:34px 0 10px}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+        padding:26px 24px;position:relative;transition:.25s;backdrop-filter:blur(8px)}
+  .step:hover{transform:translateY(-4px);border-color:rgba(46,204,143,.4);
+              box-shadow:0 14px 40px rgba(10,16,32,.6)}
+  .step .ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+             background:rgba(46,204,143,.12);border:1px solid rgba(46,204,143,.25);margin-bottom:16px}
+  .step .ico svg{width:22px;height:22px;stroke:var(--acc2);fill:none;stroke-width:1.8;
+                 stroke-linecap:round;stroke-linejoin:round}
+  .step .n{color:var(--acc2);font-weight:800;font-size:12px;letter-spacing:1.6px;margin-bottom:6px}
+  .step h3{margin:0 0 8px;font-size:18px;font-weight:700}
+  .step p{color:var(--muted);font-size:15px}
+  /* ---- section titles ---- */
+  h2{font-size:30px;margin:56px 0 6px;font-weight:800}
+  .sub{color:var(--muted);margin-bottom:26px}
+  /* ---- pricing ---- */
+  .prices{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:0 0 20px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+        padding:26px 22px;position:relative;transition:.25s;backdrop-filter:blur(8px);
+        display:flex;flex-direction:column}
+  .card:hover{transform:translateY(-4px);border-color:rgba(79,140,255,.4)}
+  .card.hot{border-color:rgba(46,204,143,.55);box-shadow:0 0 0 1px rgba(46,204,143,.35),0 16px 44px rgba(46,204,143,.12)}
+  .card.hot:hover{border-color:var(--acc2)}
+  .card .tag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+             background:linear-gradient(135deg,var(--acc2),#1fae7c);color:#05231a;
+             font-size:11.5px;font-weight:800;padding:4px 14px;border-radius:20px;letter-spacing:.5px;
+             box-shadow:0 6px 18px rgba(46,204,143,.4);white-space:nowrap}
+  .card .name{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:1.4px;font-weight:700}
+  .card .price{font-size:38px;font-weight:800;margin:10px 0 4px}
+  .card .price small{font-size:14px;color:var(--muted);font-weight:500}
+  .card ul{list-style:none;margin:16px 0 22px;font-size:14px;color:var(--muted);flex:1}
+  .card li{padding:6px 0 6px 24px;position:relative;border-bottom:1px dashed rgba(120,150,210,.1)}
+  .card li:last-child{border-bottom:none}
+  .card li::before{content:"";position:absolute;left:0;top:13px;width:8px;height:8px;border-radius:50%;
+                   background:var(--acc2);box-shadow:0 0 6px rgba(46,204,143,.7)}
+  .card .btn{display:block;text-align:center;margin-top:auto;background:linear-gradient(135deg,var(--acc),#3b6fd6);
+             color:#fff;text-decoration:none;padding:12px;border-radius:10px;font-weight:700;font-size:15px;transition:.2s}
+  .card .btn:hover{filter:brightness(1.12)}
+  .card .btn.ghost{background:var(--glass);border:1px solid var(--line);color:var(--text)}
+  .card.hot .btn{background:linear-gradient(135deg,var(--acc2),#1fae7c);color:#05231a;box-shadow:0 8px 24px rgba(46,204,143,.3)}
+  /* ---- code ---- */
+  .codebox{background:rgba(7,11,22,.9);border:1px solid var(--line);border-radius:var(--radius);
+           overflow:hidden;margin:8px 0 22px}
+  .codebox .bar{display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);
+                background:rgba(255,255,255,.03)}
+  .codebox .bar i{width:11px;height:11px;border-radius:50%;display:block}
+  .codebox .bar i:nth-child(1){background:#ff5f57}.codebox .bar i:nth-child(2){background:#febc2e}
+  .codebox .bar i:nth-child(3){background:#28c840}
+  pre{padding:18px 20px;overflow-x:auto;font:13.5px/1.65 "Cascadia Code",Consolas,Menlo,monospace;color:#cfe3ff}
+  .tok-c{color:#7fe8c0}.tok-k{color:#8ab4ff}.tok-s{color:#ffd28a}.tok-g{color:#93a1c3}.tok-p{color:#ff8ab0}
+  /* ---- note ---- */
+  .note{background:rgba(255,184,77,.07);border:1px solid rgba(255,184,77,.28);border-radius:12px;
+        padding:15px 20px;color:var(--warn);font-size:15px;margin:8px 0 26px;display:flex;gap:12px;align-items:flex-start}
+  .note svg{flex:0 0 auto;width:20px;height:20px;stroke:var(--warn);fill:none;stroke-width:1.8;
+            stroke-linecap:round;stroke-linejoin:round;margin-top:2px}
+  /* ---- footer ---- */
+  footer{border-top:1px solid var(--line);margin-top:70px;padding:30px 0;color:var(--muted);font-size:14px}
+  footer a{color:var(--acc2);text-decoration:none}
+  footer a:hover{text-decoration:underline}
+  @media(max-width:980px){.prices{grid-template-columns:1fr 1fr}}
+  @media(max-width:760px){
+    .steps{grid-template-columns:1fr}
+    .hero h1{font-size:32px}
+    .flow{display:none}
+  }
+  @media(max-width:560px){.prices{grid-template-columns:1fr}}
+
+  /* ---- trust / compare / calc / faq (SEO 2026-08-22) ---- */
+  .trust{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:36px auto 6px}
+  .titem{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 18px;backdrop-filter:blur(8px)}
+  .titem b{display:block;font-size:15px;margin-bottom:6px}
+  .titem p{color:var(--muted);font-size:13.5px;margin:0}
+  .titem .tico{width:34px;height:34px;border-radius:9px;background:rgba(46,204,143,.12);border:1px solid rgba(46,204,143,.25);display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:12px}
+  .cmp{width:100%;border-collapse:collapse;margin:10px 0 26px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .cmp th,.cmp td{padding:14px 16px;text-align:left;border-bottom:1px solid var(--line);font-size:14.5px}
+  .cmp th{background:rgba(255,255,255,.04);font-weight:800;letter-spacing:.4px}
+  .cmp td:first-child{color:var(--muted);font-weight:600;white-space:nowrap}
+  .cmp .good{color:var(--acc2);font-weight:700}
+  .cmp .bad{color:#ff8a8a}
+  .calc{max-width:540px;margin:10px auto 26px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px}
+  .calc-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:15px;color:var(--muted)}
+  .calc-row b{color:var(--text)}
+  .calc-row .bad{color:#ff8a8a}
+  .calc-row.save{border-top:1px solid var(--line);margin-top:6px;padding-top:14px;color:var(--text);font-weight:800}
+  .calc-row.save b{color:var(--acc2);font-size:20px}
+  .calc input[type=range]{width:100%;margin:10px 0 4px;accent-color:var(--acc2)}
+  .calc-note{font-size:12.5px;color:var(--muted);margin-top:12px;border-top:1px solid var(--line);padding-top:10px;line-height:1.5}
+  .faq{max-width:820px;margin:8px auto 10px}
+  .faq details{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;padding:0 18px}
+  .faq summary{cursor:pointer;padding:16px 0;font-weight:700;font-size:15.5px;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";color:var(--acc2);font-size:20px;font-weight:800;transition:.2s}
+  .faq details[open] summary::after{transform:rotate(45deg)}
+  .faq details p{color:var(--muted);font-size:14.5px;padding:0 0 16px;margin:0}
+  @media(max-width:980px){.trust{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.trust{grid-template-columns:1fr}.cmp td:first-child{white-space:normal}}
+</style>
+</head>
+<body>
+
+<div class="bgfx"></div>
+
+<header>
+  <div class="wrap hrow">
+    <div class="logo"><span class="dot"></span>CleanTrade <span>Payment API</span></div>
+      <div class="hright">
+        <nav class="hnav"><a href="/integrate.html" data-i18n="nav_guide">Guide</a></nav>
+        <div class="lang" role="group" aria-label="Language">
+          <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+          <button class="lang-btn" data-lang="ua" onclick="setLang('ua')">UA</button>
+          <button class="lang-btn" data-lang="ru" onclick="setLang('ru')">RU</button>
+        </div>
+      </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="badge"><i></i><span data-i18n="badge">USDT · TRC20 · No middlemen</span></div>
+    <h1 data-i18n="hero_h1">Accept USDT in your bot <em>in one evening</em></h1>
+    <p data-i18n="hero_p">Order → your TRC20 wallet → unique amount → buyer pays to your wallet → we detect the payment → webhook → auto-delivery. No infrastructure, no middlemen, no processing fees.</p>
+    <a class="cta" data-i18n="cta_api" href="/docs">Try the API</a>
+    <a class="cta ghost" data-i18n="cta_pricing" href="#pricing">Pricing</a>
+    <div class="hint" data-i18n="hint">No registration · API key in 1 minute · webhooks included</div>
+  </div>
+
+  <!-- flow diagram -->
+  <div class="flow">
+    <svg viewBox="0 0 860 230" role="img" aria-label="Payment flow">
+      <!-- node 1 -->
+      <g class="fnode">
+        <rect x="20" y="78" width="168" height="76"/>
+        <circle class="ic" cx="104" cy="116" r="19"/>
+        <circle class="icb" cx="104" cy="116" r="19" fill="none"/>
+        <path class="icb" d="M99 116h10M104 111v10" stroke="#2ecc8f" stroke-width="1.6" fill="none"/>
+        <text class="tt" x="104" y="96" text-anchor="middle">Customer</text>
+        <text class="st" x="104" y="150" text-anchor="middle" data-i18n="diag_1">pays 9.57 USDT</text>
+      </g>
+      <g class="farr">
+        <line x1="188" y1="116" x2="252" y2="116"/>
+        <path d="M244 109l12 7-12 7z" fill="#2ecc8f"/>
+        <text class="al" x="220" y="104" text-anchor="middle" data-i18n="diag_2">TRC20</text>
+      </g>
+      <!-- node 2 -->
+      <g class="fnode">
+        <rect x="258" y="78" width="168" height="76"/>
+        <circle class="ic" cx="342" cy="116" r="19"/>
+        <circle class="icb" cx="342" cy="116" r="19" fill="none"/>
+        <path class="icb" d="M334 114l8-6 8 6-8 6zM334 118l8 6 8-6" stroke="#2ecc8f" stroke-width="1.6" fill="none"/>
+        <text class="tt" x="342" y="96" text-anchor="middle" data-i18n="diag_3">Your TRC20 wallet</text>
+        <text class="st" x="342" y="150" text-anchor="middle" data-i18n="diag_4">payment received</text>
+      </g>
+      <g class="farr">
+        <line x1="426" y1="116" x2="490" y2="116"/>
+        <path d="M482 109l12 7-12 7z" fill="#2ecc8f"/>
+        <text class="al" x="458" y="104" text-anchor="middle" data-i18n="diag_5">~30 sec</text>
+      </g>
+      <!-- node 3 -->
+      <g class="fnode">
+        <rect x="496" y="78" width="168" height="76"/>
+        <circle class="ic" cx="580" cy="116" r="19"/>
+        <circle class="icb" cx="580" cy="116" r="19" fill="none"/>
+        <circle class="icb" cx="580" cy="110" r="3.4" fill="#2ecc8f"/>
+        <path class="icb" d="M580 116v9" stroke="#2ecc8f" stroke-width="1.6" fill="none"/>
+        <text class="tt" x="580" y="96" text-anchor="middle" data-i18n="diag_6">API detects</text>
+        <text class="st" x="580" y="150" text-anchor="middle" data-i18n="diag_7">unique amount match</text>
+      </g>
+      <g class="farr">
+        <line x1="664" y1="116" x2="728" y2="116"/>
+        <path d="M720 109l12 7-12 7z" fill="#2ecc8f"/>
+        <text class="al" x="696" y="104" text-anchor="middle" data-i18n="diag_8">webhook</text>
+      </g>
+      <!-- node 4 -->
+      <g class="fnode">
+        <rect x="734" y="78" width="116" height="76"/>
+        <circle class="ic" cx="792" cy="116" r="19"/>
+        <circle class="icb" cx="792" cy="116" r="19" fill="none"/>
+        <path class="icb" d="M786 116h12M792 110v12" stroke="#2ecc8f" stroke-width="1.6" fill="none"/>
+        <text class="tt" x="792" y="96" text-anchor="middle" data-i18n="diag_9">Auto-delivery</text>
+        <text class="st" x="792" y="150" text-anchor="middle" data-i18n="diag_10">key · file · access</text>
+      </g>
+      <!-- animated dots on connectors -->
+      <circle class="fdot" r="4"><animateMotion dur="3s" repeatCount="indefinite" path="M188,116 H252"/></circle>
+      <circle class="fdot" r="4"><animateMotion dur="3s" repeatCount="indefinite" path="M426,116 H490"/></circle>
+      <circle class="fdot" r="4"><animateMotion dur="3s" repeatCount="indefinite" path="M664,116 H728"/></circle>
+    </svg>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="steps">
+      <div class="step">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M4 9h16M8 13h4"/></svg></div>
+        <div class="n" data-i18n="s1_n">STEP 1</div>
+        <h3 data-i18n="s1_h">Create an order</h3>
+        <p data-i18n="s1_p">POST /v1/orders with your TRC20 wallet → you get a unique amount (9.57, 9.84…) for that order.</p>
+      </div>
+      <div class="step">
+        <div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7v10M9.5 9.5h4a1.5 1.5 0 010 3h-3a1.5 1.5 0 000 3h4"/></svg></div>
+        <div class="n" data-i18n="s2_n">STEP 2</div>
+        <h3 data-i18n="s2_h">Buyer pays</h3>
+        <p data-i18n="s2_p">The buyer sends exactly that amount to YOUR TRC20 wallet. The poller looks at that address and marks the order paid when the amount lands after the order was created.</p>
+      </div>
+      <div class="step">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg></div>
+        <div class="n" data-i18n="s3_n">STEP 3</div>
+        <h3 data-i18n="s3_h">Auto-delivery</h3>
+        <p data-i18n="s3_p">The poller detects the match in ~30 sec → webhook with tx_id → your code delivers the key, file or access.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <h2 data-i18n="pr_h">Pricing</h2>
+    <p class="sub" data-i18n="pr_sub">Flat subscription, not a percentage: you pay for the API, detection and webhooks - whatever your volume.</p>
+    <div class="prices">
+      <div class="card">
+        <div class="name">Free</div>
+        <div class="price">$0<small data-i18n="per_mo">/mo</small></div>
+        <ul>
+          <li data-i18n="f1">up to 5 orders/mo</li>
+          <li data-i18n="f3">webhooks with retries</li>
+        </ul>
+        <a class="btn ghost" data-i18n="btn_free" href="/subscribe.html">Start free</a>
+      </div>
+      <div class="card hot">
+        <div class="tag" data-i18n="tag_pop">Popular</div>
+        <div class="name">Starter</div>
+        <div class="price">$9.99<small data-i18n="per_mo">/mo</small></div>
+        <ul>
+          <li data-i18n="st1">up to 100 orders/mo</li>
+          <li data-i18n="st3">webhooks, 5 attempts</li>
+          <li data-i18n="st4">priority support</li>
+        </ul>
+        <a class="btn" data-i18n="btn_start" href="/subscribe.html">Get started</a>
+      </div>
+      <div class="card">
+        <div class="name">Pro</div>
+        <div class="price">$29.99<small data-i18n="per_mo">/mo</small></div>
+        <ul>
+          <li data-i18n="p1">up to 3000 orders/mo</li>
+        </ul>
+        <a class="btn ghost" data-i18n="btn_start" href="/subscribe.html">Get started</a>
+      </div>
+      <div class="card">
+        <div class="name">Business</div>
+        <div class="price">$79.99<small data-i18n="per_mo">/mo</small></div>
+        <ul>
+          <li data-i18n="b1">unlimited orders</li>
+          <li data-i18n="b4">dedicated support</li>
+        </ul>
+        <a class="btn ghost" data-i18n="btn_contact" href="/subscribe.html">Contact us</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2 data-i18n="code_h">A few lines of code</h2>
+    <p class="sub" data-i18n="code_sub">Create an order and get a unique amount:</p>
+    <div class="codebox">
+      <div class="bar"><i></i><i></i><i></i></div>
+      <pre><span class="tok-k">curl</span> -X POST <span class="tok-s">https://pay.cleantrade.info/v1/orders</span> \
+  -H <span class="tok-s">"X-API-Key: YOUR_KEY"</span> \
+  -H <span class="tok-s">"Content-Type: application/json"</span> \
+  -d <span class="tok-s">'{"product_id":"my_product","wallet":"TRX_ADDRESS","webhook_url":"https://my.site/hook"}'</span>
+
+<span class="tok-c">→</span> <span class="tok-g">{"order_id":</span><span class="tok-s">"abc123"</span><span class="tok-g">,</span><span class="tok-c">"amount"</span><span class="tok-g">:</span><span class="tok-p">9.57</span><span class="tok-g">,</span><span class="tok-c">"wallet"</span><span class="tok-g">:</span><span class="tok-s">"T..."</span><span class="tok-g">,</span><span class="tok-c">"status"</span><span class="tok-g">:</span><span class="tok-s">"created"</span><span class="tok-g">}</span></pre>
+    </div>
+    <div class="note">
+      <svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
+      <span data-i18n="note">Every order is paid to the TRC20 wallet you pass in the request - the API returns that same address in the order. We take no percentage: we only confirm the payment and wake your server with a webhook.</span>
+    </div>
+  </div>
+</section>
+
+
+<section>
+  <div class="wrap trust">
+    <div class="titem"><div class="tico">&#128274;</div><b data-i18n="t1_h">Unique amount per order</b><p data-i18n="t1_p">Every order gets its own random amount - no manual matching, no memo tags.</p></div>
+    <div class="titem"><div class="tico">&#10003;</div><b data-i18n="t2_h">No KYC</b><p data-i18n="t2_p">No registration, no documents, no approval queue. API key in 1 minute.</p></div>
+    <div class="titem"><div class="tico">&#8635;</div><b data-i18n="t3_h">Webhooks included</b><p data-i18n="t3_p">Payment webhooks with retries (up to 5 attempts) and a full tx_id payload.</p></div>
+    <div class="titem"><div class="tico">&#9203;</div><b data-i18n="t4_h">~30 sec detection</b><p data-i18n="t4_p">The poller finds the unique-amount match in about 30 seconds.</p></div>
+  </div>
+</section>
+
+<section id="compare">
+  <div class="wrap">
+    <h2 data-i18n="cmp_h">Flat fee vs percentage</h2>
+    <p class="sub" data-i18n="cmp_sub">Why developers switch from percentage-based gateways.</p>
+    <table class="cmp">
+      <thead><tr><th></th><th data-i18n="cmp_a">CleanTrade</th><th data-i18n="cmp_b">Classic crypto gateways</th></tr></thead>
+      <tbody>
+        <tr><td data-i18n="r1">Transaction fee</td><td class="good" data-i18n="r1a">$0 on Free, $9.99-79.99/mo flat</td><td class="bad" data-i18n="r1b">0.5% (NOWPayments, Plisio) to 1%+ (Coinbase Commerce, CoinGate, BitPay)</td></tr>
+        <tr><td data-i18n="r2">Where funds land</td><td class="good" data-i18n="r2a">Your own TRC20 wallet, set in each order</td><td class="bad" data-i18n="r2b">Funds sit inside the gateway's balance</td></tr>
+        <tr><td data-i18n="r3">KYC &amp; onboarding</td><td class="good" data-i18n="r3a">None. Start in 1 minute</td><td class="bad" data-i18n="r3b">Business docs, verification, days of waiting</td></tr>
+        <tr><td data-i18n="r4">Setup</td><td class="good" data-i18n="r4a">API key → first webhook in minutes</td><td class="bad" data-i18n="r4b">Integration review and approval</td></tr>
+        <tr><td data-i18n="r5">Webhooks</td><td class="good" data-i18n="r5a">Included, with retries</td><td class="bad" data-i18n="r5b">Often paid extra or limited</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2 data-i18n="calc_h">How much do fees eat?</h2>
+    <p class="sub" data-i18n="calc_sub">Two sliders - your sales per month and average order value. Honest math: flat wins above ~$2k/mo (Starter) and ~$6k/mo (Pro); below that a 0.5% gateway can cost less.</p>
+    <div class="calc">
+      <div class="calc-row"><span data-i18n="calc_ord">Sales per month</span><b id="ordV">100</b></div>
+      <input type="range" id="ordR" min="1" max="1000" step="1" value="100" aria-label="Sales per month">
+      <div class="calc-row"><span data-i18n="calc_avg">Average order value</span><b id="avgV">$50</b></div>
+      <input type="range" id="avgR" min="1" max="500" step="1" value="50" aria-label="Average order value">
+      <div class="calc-row"><span data-i18n="calc_vol">Monthly volume</span><b id="volV">$5,000</b></div>
+      <div class="calc-row"><span data-i18n="calc_traditional">Percentage gateway (0.5% per tx)</span><b id="tradV" class="bad">$25</b></div>
+      <div class="calc-row"><span data-i18n="calc_flat">CleanTrade flat</span><b id="flatV">$9.99</b> <small id="flatPlan" style="color:var(--muted)">Starter</small></div>
+      <div class="calc-row save"><span data-i18n="calc_save">You save</span><b id="saveV">+$15.01</b></div>
+      <div class="calc-note" data-i18n="calc_note">Flat isn't always cheaper - below ~$2k/mo a 0.5% gateway can cost less. What the subscription buys is a 3-line integration, no KYC and webhooks with retries, not just fee savings.</div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <h2 data-i18n="faq_h">FAQ</h2>
+    <div class="faq">
+      <details><summary data-i18n="faq1_h">How does CleanTrade detect payments?</summary><p data-i18n="faq1_p">Each order gets a unique amount (e.g. 9.57 USDT), unique within that wallet. The buyer sends exactly that amount to your TRC20 address from the order. Our poller scans that address every 30 seconds; when a transfer with that amount arrives after the order was created, the order becomes paid and your webhook fires.</p></details>
+      <details><summary data-i18n="faq2_h">Where do the payments go?</summary><p data-i18n="faq2_p">To the TRC20 wallet you set in the order - we never hold the money and we do not open wallets for you. Two merchants can use the same amount, because matching is per wallet.</p></details>
+      <details><summary data-i18n="faq3_h">What are the fees?</summary><p data-i18n="faq3_p">No percentage. Free plan: $0 (up to 5 orders/month). Paid plans are flat subscriptions: Starter $9.99, Pro $29.99, Business $79.99 per month, or $99.90/$299.90/$799.90 per year (12 months for the price of 10).</p></details>
+      <details><summary data-i18n="faq4_h">Do I need KYC or registration?</summary><p data-i18n="faq4_p">No. Get an API key in about a minute - no documents, no business registration, no approval queue.</p></details>
+      <details><summary data-i18n="faq5_h">Which blockchain and token?</summary><p data-i18n="faq5_p">USDT on TRC20 (Tron). The buyer pays to the TRC20 address the API returned; no smart contracts and no extra gas for you.</p></details>
+      <details><summary data-i18n="faq6_h">How fast is payment detection?</summary><p data-i18n="faq6_p">The poller checks every ~30 seconds, so orders usually become paid within a minute of the transfer.</p></details>
+      <details><summary data-i18n="faq7_h">How is this different from @CryptoBot / Crypto Pay?</summary><p data-i18n="faq7_p">Both take USDT in a Telegram bot. The difference is the shape: @CryptoBot is a bot with its own internal balance and a Telegram UI; CleanTrade is a plain HTTP API that your own code drives - unique amounts, webhooks, auto-delivery. One honest note: with CleanTrade the money lands on your own wallet, exactly like a direct transfer - we only match it by the unique amount.</p></details>
+      <details><summary data-i18n="faq8_h">Why not self-host BTCPay Server?</summary><p data-i18n="faq8_p">BTCPay is free, powerful and non-custodial - if you want to run and maintain your own node. CleanTrade is the same idea as a managed API: no server, no chain-sync, no updates to babysit. You POST an order and we watch the chain and wake your webhook. If you already run infra and want full control, BTCPay is excellent; if you want a few lines of code and zero ops, CleanTrade is the shortcut.</p></details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span data-i18n="footer">CleanTrade Payment API · accept USDT (TRC20) with unique amounts</span> ·
+    <a href="/docs" data-i18n="f_docs">Swagger docs</a> · <a href="/openapi.json" data-i18n="f_oas">OpenAPI</a> · <a href="https://t.me/CleanTradeSupport_bot?start=pay" data-i18n="f_support">Support</a> · <a href="/terms.html" data-i18n="f_terms">Terms</a>
+  </div>
+</footer>
+
+<script>
+const I18N = {
+  en: {
+    title: "CleanTrade Payment API - accept USDT in your bot in one evening",
+    badge: "USDT · TRC20 · No middlemen",
+    hero_h1: 'Accept USDT in your bot <em>in one evening</em>',
+    hero_p: "Order → your TRC20 wallet → unique amount → buyer pays to your wallet → we detect the payment → webhook → auto-delivery. No infrastructure, no middlemen, no processing fees.",
+    cta_api: "Try the API", cta_pricing: "Pricing",
+    hint: "No registration · API key in 1 minute · webhooks included", nav_guide: "Guide",
+    diag_1: "pays 9.57 USDT", diag_2: "TRC20", diag_3: "Your TRC20 wallet", diag_4: "payment received",
+    diag_5: "~30 sec", diag_6: "API detects", diag_7: "unique amount match", diag_8: "webhook",
+    diag_9: "Auto-delivery", diag_10: "key · file · access",
+    s1_n: "STEP 1", s1_h: "Create an order", s1_p: "POST /v1/orders with your TRC20 wallet → you get a unique amount (9.57, 9.84…) for that order.",
+    s2_n: "STEP 2", s2_h: "Buyer pays", s2_p: "The buyer sends exactly that amount to YOUR TRC20 wallet. The poller looks at that address and marks the order paid when the amount lands after the order was created.",
+    s3_n: "STEP 3", s3_h: "Auto-delivery", s3_p: "The poller detects the match in ~30 sec → webhook with tx_id → your code delivers the key, file or access.",
+    pr_h: "Pricing", pr_sub: "Flat subscription, not a percentage: you pay for the API, detection and webhooks - whatever your volume.",
+    per_mo: "/mo", tag_pop: "Popular",
+    f1: "up to 5 orders/mo", f3: "webhooks with retries", btn_free: "Start free",
+    st1: "up to 100 orders/mo", st3: "webhooks, 5 attempts", st4: "priority support", btn_start: "Get started",
+    p1: "up to 3000 orders/mo", 
+    b1: "unlimited orders", b4: "dedicated support", btn_contact: "Contact us",
+    code_h: "A few lines of code", code_sub: "Create an order and get a unique amount:",
+    note: "Every order is paid to the TRC20 wallet you pass in the request - the API returns that same address in the order. We take no percentage: we only confirm the payment and wake your server with a webhook.",
+    footer: "CleanTrade Payment API · accept USDT (TRC20) with unique amounts", f_docs: "Swagger docs", f_oas: "OpenAPI", f_support: "Support", f_terms: "Terms",
+    desc: "Accept USDT (TRC20) in your bot in one evening. Payment API with unique amounts and webhooks: order, payment, auto-delivery. No middlemen, no percentage fees.",
+    t1_h: "Unique amount per order",
+    t1_p: "Every order gets its own random amount - no manual matching, no memo tags.",
+    t2_h: "No KYC",
+    t2_p: "No registration, no documents, no approval queue. API key in 1 minute.",
+    t3_h: "Webhooks included",
+    t3_p: "Payment webhooks with retries (up to 5 attempts) and a full tx_id payload.",
+    t4_h: "~30 sec detection",
+    t4_p: "The poller finds the unique-amount match in about 30 seconds.",
+    cmp_h: "Flat fee vs percentage",
+    cmp_sub: "Why developers switch from percentage-based gateways.",
+    cmp_a: "CleanTrade",
+    cmp_b: "Classic crypto gateways",
+    r1: "Transaction fee",
+    r1a: "$0 on Free, $9.99-79.99/mo flat",
+    r1b: "0.5% (NOWPayments, Plisio) to 1%+ (Coinbase Commerce, CoinGate, BitPay)",
+    r2: "Funds",
+    r2a: "Your own TRC20 wallet, set in each order",
+    r2b: "Funds sit inside the gateway's balance",
+    r3: "KYC & onboarding",
+    r3a: "None. Start in 1 minute",
+    r3b: "Business docs, verification, days of waiting",
+    r4: "Setup",
+    r4a: "API key → first webhook in minutes",
+    r4b: "Integration review and approval",
+    r5: "Webhooks",
+    r5a: "Included, with retries",
+    r5b: "Often paid extra or limited",
+    calc_h: "How much do fees eat?",
+    calc_sub: "Two sliders - your sales per month and average order value. Honest math: flat wins above ~$2k/mo (Starter) and ~$6k/mo (Pro); below that a 0.5% gateway can cost less.",
+    calc_ord: "Sales per month",
+    calc_avg: "Average order value",
+    calc_vol: "Monthly volume",
+    calc_traditional: "Percentage gateway (0.5% per tx)",
+    calc_flat: "CleanTrade flat",
+    calc_save: "You save",
+    calc_note: "Flat isn't always cheaper - below ~$2k/mo a 0.5% gateway can cost less. What the subscription buys is a 3-line integration, no KYC and webhooks with retries, not just fee savings.",
+    faq_h: "FAQ",
+    faq1_h: "How does CleanTrade detect payments?",
+    faq1_p: "Each order gets a unique amount (e.g. 9.57 USDT), unique within that wallet. The buyer sends exactly that amount to your TRC20 address from the order. Our poller scans that address every 30 seconds; when a transfer with that amount arrives after the order was created, the order becomes paid and your webhook fires.",
+    faq2_h: "Where do the payments go?",
+    faq2_p: "To the TRC20 wallet you set in the order - we never hold the money and we do not open wallets for you. Two merchants can use the same amount, because matching is per wallet.",
+    faq3_h: "What are the fees?",
+    faq3_p: "No percentage. Free plan: $0 (up to 5 orders/month). Paid plans are flat subscriptions: Starter $9.99, Pro $29.99, Business $79.99 per month, or yearly at 10x: $99.90, $299.90, $799.90 (12 months for the price of 10).",
+    faq4_h: "Do I need KYC or registration?",
+    faq4_p: "No. Get an API key in about a minute - no documents, no business registration, no approval queue.",
+    faq5_h: "Which blockchain and token?",
+    faq5_p: "USDT on TRC20 (Tron). The buyer pays to the TRC20 address the API returned; no smart contracts and no extra gas for you.",
+    faq6_h: "How fast is payment detection?",
+    faq6_p: "The poller checks every ~30 seconds, so orders usually become paid within a minute of the transfer.",
+    faq7_h: "How is this different from @CryptoBot / Crypto Pay?",
+    faq7_p: "Both take USDT in a Telegram bot. The difference is the shape: @CryptoBot is a bot with its own internal balance and a Telegram UI; CleanTrade is a plain HTTP API that your own code drives - unique amounts, webhooks, auto-delivery. One honest note: with CleanTrade the money lands on your own wallet, exactly like a direct transfer - we only match it by the unique amount.",
+    faq8_h: "Why not self-host BTCPay Server?",
+    faq8_p: "BTCPay is free, powerful and non-custodial - if you want to run and maintain your own node. CleanTrade is the same idea as a managed API: no server, no chain-sync, no updates to babysit. You POST an order and we watch the chain and wake your webhook. If you already run infra and want full control, BTCPay is excellent; if you want a few lines of code and zero ops, CleanTrade is the shortcut."
+  },
+  ua: {
+    title: "CleanTrade Payment API - приймай USDT у своєму боті за один вечір",
+    badge: "USDT · TRC20 · Без посередників",
+    hero_h1: 'Приймай USDT у своєму боті <em>за один вечір</em>',
+    hero_p: "Замовлення → твій TRC20-гаманець → унікальна сума → покупець платить на твій гаманець → ми ловимо оплату → вебхук → автовидача. Без своєї інфраструктури, без посередників, без відсотків за еквайринг.",
+    cta_api: "Спробувати API", cta_pricing: "Тарифи",
+    hint: "Без реєстрації · API-ключ за хвилину · вебхуки включені", nav_guide: "Гайд",
+    diag_1: "платить 9.57 USDT", diag_2: "TRC20", diag_3: "Твій TRC20-гаманець", diag_4: "оплату знайдено",
+    diag_5: "~30 сек", diag_6: "API ловить", diag_7: "збіг унікальної суми", diag_8: "вебхук",
+    diag_9: "Автовидача", diag_10: "ключ · файл · доступ",
+    s1_n: "КРОК 1", s1_h: "Створюєш замовлення", s1_p: "POST /v1/orders зі своїм TRC20-гаманцем → отримуєш унікальну суму (9.57, 9.84…) для цього замовлення.",
+    s2_n: "КРОК 2", s2_h: "Покупець платить", s2_p: "Покупець переказує рівно цю суму на ТВІЙ TRC20-гаманець. Подер дивиться на цю адресу й позначає замовлення paid, коли сума надійшла після створення замовлення.",
+    s3_n: "КРОК 3", s3_h: "Автовидача", s3_p: "Полер ловить збіг за ~30 сек → вебхук з tx_id → твій код видає ключ, файл, доступ.",
+    pr_h: "Тарифи", pr_sub: "Фіксована підписка, не відсоток: платиш за API, детект оплати та вебхуки - незалежно від обсягу.",
+    per_mo: "/міс", tag_pop: "Популярний",
+    f1: "до 5 замовлень/міс", f3: "вебхуки з ретраями", btn_free: "Почати безкоштовно",
+    st1: "до 100 замовлень/міс", st3: "вебхуки, 5 спроб", st4: "пріоритетна підтримка", btn_start: "Підключити",
+    p1: "до 3000 замовлень/міс", 
+    b1: "безліміт замовлень", b4: "персональна підтримка", btn_contact: "Зв'язатися",
+    code_h: "Кілька рядків коду", code_sub: "Створити замовлення та отримати унікальну суму:",
+    note: "Кожне замовлення оплачується на TRC20-гаманець, який ти передав у запиті - API повертає ту саму адресу в замовленні. Ми не беремо відсоток: лише підтверджуємо оплату та будимо твій сервер вебхуком.",
+    footer: "CleanTrade Payment API · прийом USDT (TRC20) за унікальною сумою", f_docs: "Swagger-доки", f_oas: "OpenAPI", f_support: "Підтримка", f_terms: "Умови",
+    desc: "Приймай USDT (TRC20) у своєму боті за один вечір. Платіжний API з унікальними сумами та вебхуками: замовлення, оплата, автовидача. Без посередників, без відсотків.",
+    t1_h: "Унікальна сума на замовлення",
+    t1_p: "Кожне замовлення отримує власну випадкову суму - без ручного звіряння й memo-тегів.",
+    t2_h: "Без KYC",
+    t2_p: "Без реєстрації, документів і черг на погодження. API-ключ за хвилину.",
+    t3_h: "Вебхуки включені",
+    t3_p: "Платіжні вебхуки з ретраями (до 5 спроб) і повним payload з tx_id.",
+    t4_h: "Детекція ~30 сек",
+    t4_p: "Полер ловить збіг унікальної суми приблизно за 30 секунд.",
+    cmp_h: "Фіксована плата vs відсоток",
+    cmp_sub: "Чому розробники переходять з відсоткових шлюзів.",
+    cmp_a: "CleanTrade",
+    cmp_b: "Класичні криптошлюзи",
+    r1: "Комісія за транзакцію",
+    r1a: "$0 на Free, $9.99-79.99/міс фікс",
+    r1b: "0.5% (NOWPayments, Plisio) до 1%+ (Coinbase Commerce, CoinGate, BitPay)",
+    r2: "Куди надходять кошти",
+    r2a: "Твій власний TRC20-гаманець, заданий у кожному замовленні",
+    r2b: "Кошти лежать на балансі гейтвея",
+    r3: "KYC та онбординг",
+    r3a: "Жодного. Старт за хвилину",
+    r3b: "Документи бізнесу, верифікація, дні очікування",
+    r4: "Налаштування",
+    r4a: "API-ключ → перший вебхук за хвилини",
+    r4b: "Рев'ю інтеграції, погодження",
+    r5: "Вебхуки",
+    r5a: "Включені, з ретраями",
+    r5b: "Часто платні або обмежені",
+    calc_h: "Скільки з'їдають комісії?",
+    calc_sub: "Два повзунки - твої продажі на місяць і середній чек. Чесно: фікс виграє від ~$2k/міс (Starter) і ~$6k/міс (Pro); нижче - шлюз із 0.5% може бути дешевшим.",
+    calc_ord: "Продажів на місяць",
+    calc_avg: "Середній чек",
+    calc_vol: "Місячний обсяг",
+    calc_traditional: "Відсотковий шлюз (0.5% за транзакцію)",
+    calc_flat: "CleanTrade фікс",
+    calc_save: "Ти економиш",
+    calc_note: "Фікс не завжди дешевший - нижче ~$2k/міс шлюз із 0.5% може коштувати менше. Підписка купує інтеграцію в 3 рядки, відсутність KYC і вебхуки з ретраями, а не лише економію.",
+    faq_h: "Питання",
+    faq1_h: "Як CleanTrade виявляє оплати?",
+    faq1_p: "Кожне замовлення отримує унікальну суму (напр. 9.57 USDT), унікальну в межах цього гаманця. Покупець переказує рівно цю суму на твою TRC20-адресу із замовлення. Подер сканує цю адресу кожні 30 секунд; коли переказ із такою сумою приходить після створення замовлення - замовлення стає paid і твій вебхук спрацьовує.",
+    faq2_h: "Куди надходять платежі?",
+    faq2_p: "На TRC20-гаманець, який ти вказав у замовленні - ми не тримаємо гроші й не відкриваємо гаманці. Два мерчанти можуть мати однакову суму, бо збіг рахується в межах гаманця.",
+    faq3_h: "Які комісії?",
+    faq3_p: "Жодного відсотка. Free-план: $0 (до 5 замовлень/міс). Платні плани - фіксована підписка: Starter $9.99, Pro $29.99, Business $79.99/міс, або річна ×10: $99.90, $299.90, $799.90 (12 місяців за ціною 10).",
+    faq4_h: "Чи потрібен KYC або реєстрація?",
+    faq4_p: "Ні. API-ключ за хвилину - без документів, реєстрації бізнесу та черг на погодження.",
+    faq5_h: "Який блокчейн і токен?",
+    faq5_p: "USDT у мережі TRC20 (Tron). Покупець платить на адресу, яку повернув API; без смарт-контрактів і зайвого газу для тебе.",
+    faq6_h: "Наскільки швидка детекція?",
+    faq6_p: "Полер перевіряє кожні ~30 секунд, тож замовлення зазвичай стає paid протягом хвилини після переказу.",
+    faq7_h: "Чим це відрізняється від @CryptoBot / Crypto Pay?",
+    faq7_p: "Обидва приймають USDT у Telegram-боті. Різниця у формі: @CryptoBot - це бот із власним внутрішнім балансом і Telegram-інтерфейсом; CleanTrade - звичайний HTTP API, яким керує твій код: унікальні суми, вебхуки, автовидача. Одне чесне уточнення: у CleanTrade гроші надходять на твій власний гаманець, як і будь-який прямий переказ - ми лише зіставляємо його за унікальною сумою.",
+    faq8_h: "Чому просто не розгорнути BTCPay Server?",
+    faq8_p: "BTCPay безкоштовний, потужний і некастодіальний - якщо ти готовий запускати й підтримувати власну ноду. CleanTrade - та сама ідея, але як керований API: без сервера, без синхронізації ланцюга, без оновлень. Ти робиш POST замовлення, а ми стежимо за ланцюгом і будимо твій вебхук. Якщо в тебе вже є інфраструктура і хочеш повний контроль - BTCPay чудовий; якщо хочеш кілька рядків коду і нуль оперування - CleanTrade твій шлях."
+  },
+  ru: {
+    title: "CleanTrade Payment API - принимай USDT в своём боте за вечер",
+    badge: "USDT · TRC20 · Без посредников",
+    hero_h1: 'Принимай USDT в своём боте <em>за один вечер</em>',
+    hero_p: "Заказ → твой TRC20-кошелёк → уникальная сумма → покупатель платит на твой кошелёк → мы ловим оплату → вебхук → автовыдача товара. Без своей инфраструктуры, без посредников, без процентов за эквайринг.",
+    cta_api: "Попробовать API", cta_pricing: "Тарифы",
+    hint: "Без регистрации · API-ключ за минуту · вебхуки включены", nav_guide: "Гайд",
+    diag_1: "платит 9.57 USDT", diag_2: "TRC20", diag_3: "Твой TRC20-кошелёк", diag_4: "оплата найдена",
+    diag_5: "~30 сек", diag_6: "API ловит", diag_7: "совпадение суммы", diag_8: "вебхук",
+    diag_9: "Автовыдача", diag_10: "ключ · файл · доступ",
+    s1_n: "ШАГ 1", s1_h: "Создаёшь заказ", s1_p: "POST /v1/orders со своим TRC20-кошельком → получаешь уникальную сумму (9.57, 9.84…) для этого заказа.",
+    s2_n: "ШАГ 2", s2_h: "Покупатель платит", s2_p: "Покупатель переводит ровно эту сумму на ТВОЙ TRC20-кошелёк. Поллер смотрит на этот адрес и помечает заказ paid, когда сумма пришла после создания заказа.",
+    s3_n: "ШАГ 3", s3_h: "Автовыдача", s3_p: "Поллер ловит совпадение за ~30 сек → вебхук с tx_id → твой код выдаёт ключ, файл, доступ.",
+    pr_h: "Тарифы", pr_sub: "Фиксированная подписка, не процент: платишь за API, детект оплаты и вебхуки - независимо от объёма.",
+    per_mo: "/мес", tag_pop: "Популярный",
+    f1: "до 5 заказов/мес", f3: "вебхуки с ретраями", btn_free: "Начать бесплатно",
+    st1: "до 100 заказов/мес", st3: "вебхуки, 5 попыток", st4: "приоритетная поддержка", btn_start: "Подключить",
+    p1: "до 3000 заказов/мес", 
+    b1: "безлимит заказов", b4: "персональная поддержка", btn_contact: "Связаться",
+    code_h: "Несколько строк кода", code_sub: "Создать заказ и получить уникальную сумму:",
+    note: "Каждый заказ оплачивается на TRC20-кошелёк, который ты передал в запросе - API возвращает тот же адрес в заказе. Мы не берём процент: только подтверждаем оплату и будим твой сервер вебхуком.",
+    footer: "CleanTrade Payment API · приём USDT (TRC20) по уникальной сумме", f_docs: "Swagger-доки", f_oas: "OpenAPI", f_support: "Поддержка", f_terms: "Условия",
+    desc: "Принимай USDT (TRC20) в своём боте за один вечер. Платёжный API с уникальными суммами и вебхуками: заказ, оплата, автовыдача. Без посредников, без процентов.",
+    t1_h: "Уникальная сумма на заказ",
+    t1_p: "Каждый заказ получает свою случайную сумму - без ручного сверения и memo-тегов.",
+    t2_h: "Без KYC",
+    t2_p: "Без регистрации, документов и очередей на одобрение. API-ключ за минуту.",
+    t3_h: "Вебхуки включены",
+    t3_p: "Платёжные вебхуки с ретраями (до 5 попыток) и полным payload с tx_id.",
+    t4_h: "Детекция ~30 сек",
+    t4_p: "Поллер ловит совпадение уникальной суммы примерно за 30 секунд.",
+    cmp_h: "Фиксированная плата vs процент",
+    cmp_sub: "Почему разработчики уходят с процентных шлюзов.",
+    cmp_a: "CleanTrade",
+    cmp_b: "Классические криптошлюзы",
+    r1: "Комиссия за транзакцию",
+    r1a: "$0 на Free, $9.99-79.99/мес фикс",
+    r1b: "0.5% (NOWPayments, Plisio) до 1%+ (Coinbase Commerce, CoinGate, BitPay)",
+    r2: "Куда приходят средства",
+    r2a: "Твой собственный TRC20-кошелёк, заданный в каждом заказе",
+    r2b: "Деньги лежат на балансе шлюза",
+    r3: "KYC и онбординг",
+    r3a: "Никакого. Старт за минуту",
+    r3b: "Документы бизнеса, верификация, дни ожидания",
+    r4: "Настройка",
+    r4a: "API-ключ → первый вебхук за минуты",
+    r4b: "Ревью интеграции, одобрение",
+    r5: "Вебхуки",
+    r5a: "Включены, с ретраями",
+    r5b: "Часто платные или ограниченные",
+    calc_h: "Сколько съедают комиссии?",
+    calc_sub: "Два ползунка - твои продажи в месяц и средний чек. Честно: фикс выигрывает от ~$2k/мес (Starter) и ~$6k/мес (Pro); ниже - шлюз с 0.5% может быть дешевле.",
+    calc_ord: "Продаж в месяц",
+    calc_avg: "Средний чек",
+    calc_vol: "Месячный объём",
+    calc_traditional: "Процентный шлюз (0.5% за транзакцию)",
+    calc_flat: "CleanTrade фикс",
+    calc_save: "Ты экономишь",
+    calc_note: "Фикс не всегда дешевле - ниже ~$2k/мес шлюз с 0.5% может стоить меньше. Подписка покупает интеграцию в несколько строк, отсутствие KYC и вебхуки с ретраями, а не только экономию.",
+    faq_h: "Вопросы",
+    faq1_h: "Как CleanTrade определяет оплату?",
+    faq1_p: "Каждый заказ получает уникальную сумму (напр. 9.57 USDT), уникальную в пределах этого кошелька. Покупатель переводит ровно эту сумму на твой TRC20-адрес из заказа. Наш поллер сканирует этот адрес каждые 30 секунд; когда перевод с такой суммой приходит после создания заказа - заказ становится paid и твой вебхук срабатывает.",
+    faq2_h: "Куда приходят платежи?",
+    faq2_p: "На TRC20-кошелёк, который ты указал в заказе - мы не держим деньги и не открываем кошельки. Два мерчанта могут использовать одну сумму, потому что совпадение считается в пределах кошелька.",
+    faq3_h: "Какие комиссии?",
+    faq3_p: "Никакого процента. Free-план: $0 (до 5 заказов/мес). Платные планы - фиксированная подписка: Starter $9.99, Pro $29.99, Business $79.99/мес, или годовая ×10: $99.90, $299.90, $799.90 (12 месяцев по цене 10).",
+    faq4_h: "Нужен ли KYC или регистрация?",
+    faq4_p: "Нет. API-ключ за минуту - без документов, регистрации бизнеса и очередей на одобрение.",
+    faq5_h: "Какой блокчейн и токен?",
+    faq5_p: "USDT в сети TRC20 (Tron). Покупатель платит на адрес, который вернул API; без смарт-контрактов и лишнего газа для тебя.",
+    faq6_h: "Насколько быстрая детекция?",
+    faq6_p: "Поллер проверяет каждые ~30 секунд, поэтому заказ обычно становится paid в течение минуты после перевода.",
+    faq7_h: "Чем это отличается от @CryptoBot / Crypto Pay?",
+    faq7_p: "Оба принимают USDT в Telegram-боте. Разница в форме: @CryptoBot - это бот с внутренним балансом и Telegram-интерфейсом; CleanTrade - обычный HTTP API, которым управляет твой код: уникальные суммы, вебхуки, автовыдача. Одно честное уточнение: в CleanTrade деньги приходят на твой собственный кошелёк, как и любой прямой перевод - мы лишь сопоставляем его по уникальной сумме.",
+    faq8_h: "Почему просто не развернуть BTCPay Server?",
+    faq8_p: "BTCPay бесплатный, мощный и некастодиальный - если ты готов запускать и поддерживать собственную ноду. CleanTrade - та же идея, но как управляемый API: без сервера, без синхронизации цепочки, без обновлений. Ты делаешь POST заказа, а мы следим за цепочкой и будим твой вебхук. Если у тебя уже есть инфраструктура и хочешь полный контроль - BTCPay отличный; если хочешь три строки кода и ноль оперирования - CleanTrade твой путь."
+  }
+};
+function applyLang(l){
+  document.documentElement.lang = l;
+  const t = I18N[l] || I18N.en;
+  if (t.title) document.title = t.title;
+  const mdesc = document.querySelector('meta[name="description"]');
+  if (mdesc && t.desc) mdesc.setAttribute('content', t.desc);
+  const ogm = (p, v) => { const el = document.querySelector('meta[property="' + p + '"]'); if (el && v) el.setAttribute('content', v); };
+  ogm('og:title', t.title); ogm('og:description', t.desc);
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const v = t[el.dataset.i18n];
+    if (v === undefined) return;
+    if (el.tagName === 'TEXT') el.textContent = v; else el.innerHTML = v;
+  });
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === l));
+  try { localStorage.setItem('pay_lang', l); } catch(e){}
+}
+function setLang(l){ applyLang(l); }
+document.addEventListener('DOMContentLoaded', () => { applyLang(localStorage.getItem('pay_lang') || 'en'); });
+</script>
+
+<script>
+// calculator (sales/mo × avg order value; auto-picks plan)
+(function () {
+  const ordR = document.getElementById('ordR');
+  const avgR = document.getElementById('avgR');
+  if (!ordR || !avgR) return;
+  const plans = [
+    { max: 5, name: 'Free', price: 0 },
+    { max: 100, name: 'Starter', price: 9.99 },
+    { max: 3000, name: 'Pro', price: 29.99 },
+    { max: 1e9, name: 'Business', price: 79.99 }
+  ];
+  const el = (id) => document.getElementById(id);
+  const fmt = (n, d) => '$' + n.toLocaleString('en-US', { maximumFractionDigits: d });
+  const upd = () => {
+    const orders = +ordR.value;
+    const avg = +avgR.value;
+    const vol = orders * avg;
+    const trad = vol * 0.005;
+    const plan = plans.find((p) => orders <= p.max);
+    const flat = plan.price;
+    const save = trad - flat;
+    if (el('ordV')) el('ordV').textContent = orders.toLocaleString('en-US');
+    if (el('avgV')) el('avgV').textContent = fmt(avg, 2);
+    if (el('volV')) el('volV').textContent = fmt(vol, 0);
+    if (el('tradV')) el('tradV').textContent = fmt(trad, 2);
+    if (el('flatV')) el('flatV').textContent = fmt(flat, 2);
+    if (el('flatPlan')) el('flatPlan').textContent = plan.name;
+    if (el('saveV')) {
+      const sEl = el('saveV');
+      const sign = save >= 0 ? '+' : '−';
+      sEl.textContent = sign + fmt(Math.abs(save), 2);
+      sEl.style.color = save >= 0 ? '' : '#ff8a8a';
+      if (save < 0) sEl.textContent += ' - flat costs more below breakeven';
+    }
+  };
+  ordR.addEventListener('input', upd);
+  avgR.addEventListener('input', upd);
+  upd();
+})();
+</script>
+
+</body>
+</html>

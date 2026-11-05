@@ -1,0 +1,159 @@
+# How to accept USDT in Telegram bots without KYC in 10 minutes
+
+If you run a Telegram bot that sells anything - subscriptions, digital goods, services - you've hit the same wall: Stripe and PayPal ban crypto and bot-related businesses, classic crypto gateways take a percentage of every payment and hold your funds until payout, and KYC verification takes days.
+
+There is a simpler way: **a non-custodial USDT (TRC20) payment gateway with a flat subscription fee and 0% per-transaction fees.**
+
+In this tutorial you'll build a Telegram bot that accepts USDT payments end-to-end in about 10 minutes.
+
+---
+
+## The idea: non-custodial means money goes straight to you
+
+CleanTrade is a payment gateway that works without a middleman holding your funds:
+
+- The customer pays **directly to your TRC20 wallet** - you never share custody of your money
+- **No KYC**, no registration documents, no approval queue - API key in 1 minute
+- **0% commission** - a flat subscription instead of a percentage cut
+- Payment detection in **~30 seconds** via unique-amount matching
+
+How does detection work without smart contracts? Each order gets a **unique amount** (e.g. `9.84` USDT instead of `10.00`). When that exact amount lands on your wallet, the poller matches it to the order and fires a **webhook** with the full payload. Elegant, cheap, and no gas fees on top.
+
+---
+
+## 1. Get an API key
+
+1. Go to [pay.cleantrade.info/subscribe.html](https://pay.cleantrade.info/subscribe.html)
+2. Pick a plan (there's a free tier - enough to test)
+3. Copy your API key
+
+That's it. No documents, no waiting.
+
+---
+
+## 2. Create an order
+
+```bash
+curl -X POST https://pay.cleantrade.info/api/create_order \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"amount": 9.84, "description": "Premium access"}'
+```
+
+Response:
+
+```json
+{
+  "order_id": "ord_8f3a...",
+  "amount": 9.84,
+  "wallet": "TXYZ...",
+  "status": "pending",
+  "created_at": "2026-08-22T12:00:00Z"
+}
+```
+
+You show the customer the `wallet` address and the exact `amount`. When they send it, the poller detects the transaction and your webhook fires.
+
+---
+
+## 3. The complete Telegram bot (Python + aiogram)
+
+Here's a minimal bot that sells digital goods. When a user taps **Buy**, the bot creates an order, shows the wallet and amount, and waits for the webhook to deliver the product.
+
+```python
+import asyncio
+import logging
+from aiogram import Bot, Dispatcher, types
+from aiogram.filters import Command
+
+from cleantrade import Client
+
+API_KEY = "your_api_key"
+BOT_TOKEN = "your_bot_token"
+
+ct = Client(api_key=API_KEY)
+bot = Bot(BOT_TOKEN)
+dp = Dispatcher()
+
+@dp.message(Command("start"))
+async def start(message: types.Message):
+    kb = types.InlineKeyboardMarkup(inline_keyboard=[[
+        types.InlineKeyboardButton(text="Buy Premium - 9.84 USDT", callback_data="buy")
+    ]])
+    await message.answer("Premium access: 9.84 USDT (TRC20). No KYC, direct to wallet.", reply_markup=kb)
+
+@dp.callback_query(lambda c: c.data == "buy")
+async def buy(callback: types.CallbackQuery):
+    order = ct.create_order(amount=9.84, description="Premium access")
+    await callback.message.answer(
+        f"Send exactly **{order.amount} USDT** (TRC20) to:\n\n`{order.wallet}`\n\n"
+        f"Order: `{order.order_id}`\n\nI'll deliver the product automatically once the payment lands (~30 sec)."
+    )
+    await callback.answer()
+
+async def main():
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    asyncio.run(main())
+```
+
+Install dependencies:
+
+```bash
+pip install aiogram cleantrade
+```
+
+---
+
+## 4. Webhook server: deliver the product automatically
+
+Create a small FastAPI app that receives payment notifications and releases the goods:
+
+```python
+from fastapi import FastAPI, Request
+from cleantrade import verify_webhook
+
+app = FastAPI()
+
+@app.post("/webhook")
+async def webhook(request: Request):
+    payload = await request.json()
+    if not verify_webhook(payload):          # checks signature
+        return {"ok": False}
+    if payload["status"] == "paid":
+        order_id = payload["order_id"]
+        # deliver your product here
+        print(f"Order {order_id} paid: {payload['amount']} USDT, tx {payload['tx_id']}")
+    return {"ok": True}
+```
+
+Set the webhook URL in your CleanTrade dashboard, and payments become fully automatic: customer pays → webhook fires → product delivered. No polling code on your side needed.
+
+---
+
+## 5. What it costs
+
+| Plan | Monthly | Yearly |
+| --- | --- | --- |
+| Starter | $9.99 | $99.90 (12 months for the price of 10) |
+| Pro | $29.99 | $299.90 |
+| Business | $79.99 | $799.90 |
+
+Compare with classic gateways: on $10,000/month volume they take **~$50 in fees at 0.5%**. CleanTrade takes a flat $29.99. The real win is custody and DX: money lands on your wallet instantly, no gateway balance, no KYC queue.
+
+---
+
+## Why this matters
+
+- **No bans**: USDT on your own wallet can't be frozen by a payment processor
+- **No KYC wall**: your customers stay private, you stay private
+- **0% fees**: flat subscription, the math is predictable
+- **~30 sec detection**: webhooks with up to 5 retries, full `tx_id` payload
+
+The SDK is open source: [github.com/smile-sk/cleantrade-python](https://github.com/smile-sk/cleantrade-python) - includes the client, webhook server example, and this Telegram bot.
+
+Full docs: [pay.cleantrade.info](https://pay.cleantrade.info/)
+
+Happy building! 🚀

@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="title">CleanTrade Crypto Signals - Screener Bot & Pine Script Indicator</title>
+<meta name="description" content="Real-time crypto signals: Telegram screener bot (impulse, FVG, liquidations, sessions) + CleanTrail Pine Script indicator. One-time 9.99 USDT, lifetime access.">
+<link rel="canonical" href="https://cleantrade.info/">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#070b16">
+<link rel="icon" href="/images/favicon.png" type="image/png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CleanTrade">
+<meta property="og:url" content="https://cleantrade.info/">
+<meta property="og:title" content="CleanTrade Crypto Signals - Screener Bot & Pine Script Indicator">
+<meta property="og:description" content="Real-time crypto signals: Telegram screener (impulse, FVG, liquidations, sessions) + CleanTrail Pine Script indicator. One-time 9.99 USDT, lifetime access.">
+<meta property="og:image" content="https://cleantrade.info/og-image.png?v=2">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="CleanTrail - Pine Script Indicator and Telegram Screener">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="uk_UA">
+<meta property="og:locale:alternate" content="ru_RU">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="CleanTrade Crypto Signals - Screener Bot & Pine Script Indicator">
+<meta name="twitter:description" content="Telegram screener + Pine Script indicator. Real-time impulse, FVG, liquidation & session alerts. One-time 9.99 USDT, lifetime.">
+<meta name="twitter:image" content="https://cleantrade.info/og-image.png?v=2">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Organization","name":"CleanTrade","url":"https://cleantrade.info/","logo":"https://cleantrade.info/images/favicon.png","sameAs":["https://t.me/CleanTrade_bot","https://t.me/CleanTradeSupport_bot","https://pay.cleantrade.info/"]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":"CleanTrade Crypto Signals","url":"https://cleantrade.info/"}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Product","name":"CleanTrade Crypto Signals - Screener Bot & CleanTrail Indicator","description":"Real-time Telegram crypto screener (impulse moves, FVG, liquidations, sessions) plus the CleanTrail Pine Script indicator with trailing stop, filters and Fibonacci targets.","brand":{"@type":"Brand","name":"CleanTrade"},"offers":{"@type":"Offer","price":"9.99","priceCurrency":"USD","availability":"https://schema.org/InStock","url":"https://t.me/CleanTrade_bot?start=landing"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What do I get for 9.99 USDT?","acceptedAnswer":{"@type":"Answer","text":"Lifetime access: the CleanTrade Telegram screener bot (real-time alerts for 15 pairs) plus the CleanTrail indicator (.pine script) with a PDF setup & strategy guide. One-time payment, no subscription."}},{"@type":"Question","name":"How fast do I get access?","acceptedAnswer":{"@type":"Answer","text":"Instantly. After the one-time USDT (TRC20) payment the bot auto-delivers the ZIP with the .pine script and PDF guide, and your alerts are active right away."}},{"@type":"Question","name":"Which pairs does the screener monitor?","acceptedAnswer":{"@type":"Answer","text":"BTC, ETH, SOL, XRP, DOGE, PEPE, LDO, ADA, BNB, WIF, TON, LINK, ENA, LTC and ONDO - 15 pairs monitored around the clock on the 1-hour timeframe."}},{"@type":"Question","name":"What does an impulse alert contain?","acceptedAnswer":{"@type":"Answer","text":"Direction, price change, move size vs ATR, volume vs average, open interest change, a pattern hint (conviction or squeeze), Fibonacci take-profit levels and an ATR-based stop-loss."}},{"@type":"Question","name":"Is CleanTrail hard to set up?","acceptedAnswer":{"@type":"Answer","text":"No. You paste the .pine script into the TradingView Pine Editor, save it, and the included PDF guide walks you through the settings and strategy tips step by step. Built for beginners."}},{"@type":"Question","name":"Is this financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. CleanTrade signals and the CleanTrail indicator are technical analysis tools. They do not guarantee profit. Trade at your own discretion and always use risk management."}}]}
+</script>
+<style>
+  :root{
+    --bg:#070b16; --panel:rgba(17,25,46,.72); --line:rgba(120,150,210,.16);
+    --text:#e9eefb; --muted:#93a1c3; --acc:#4f8cff; --acc2:#2ecc8f; --warn:#ffb84d;
+    --red:#ff6b7a; --glass:rgba(255,255,255,.04); --radius:16px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);color:var(--text);
+    font:16px/1.55 -apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+    overflow-x:hidden;
+  }
+  .bgfx{position:fixed;inset:0;z-index:-2;overflow:hidden;background:var(--bg)}
+  .bgfx::before{
+    content:"";position:absolute;inset:-20%;
+    background:
+      radial-gradient(38% 32% at 22% 18%, rgba(46,204,143,.20), transparent 60%),
+      radial-gradient(42% 36% at 78% 26%, rgba(79,140,255,.18), transparent 62%),
+      radial-gradient(50% 42% at 50% 88%, rgba(120,80,255,.14), transparent 64%),
+      radial-gradient(30% 26% at 88% 78%, rgba(46,204,143,.12), transparent 60%);
+    filter:blur(24px);
+    animation:aurora 26s ease-in-out infinite alternate;
+  }
+  @keyframes aurora{
+    0%{transform:translate3d(-2%,-1%,0) scale(1) rotate(0deg)}
+    50%{transform:translate3d(2%,2%,0) scale(1.08) rotate(2deg)}
+    100%{transform:translate3d(-1%,1%,0) scale(1.04) rotate(-2deg)}
+  }
+  .bgfx::after{
+    content:"";position:absolute;inset:0;opacity:.5;
+    background-image:
+      linear-gradient(rgba(120,150,210,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(120,150,210,.05) 1px, transparent 1px);
+    background-size:44px 44px;
+    mask-image:radial-gradient(70% 60% at 50% 30%, #000 30%, transparent 78%);
+  }
+  .wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+  header{position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);
+         background:rgba(7,11,22,.72);border-bottom:1px solid var(--line)}
+  .hrow{display:flex;align-items:center;justify-content:space-between;gap:16px;height:64px}
+  .logo{font-weight:800;font-size:18px;letter-spacing:.3px;display:flex;align-items:center;gap:10px}
+  .logo .dot{width:12px;height:12px;border-radius:50%;background:var(--acc2);
+             box-shadow:0 0 12px var(--acc2);animation:pulse 2.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+  .logo span{color:var(--acc2)}
+  .hright{display:flex;align-items:center;gap:14px}
+  .hnav{display:flex;align-items:center;gap:6px}
+  .hnav a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:700;padding:7px 12px;border-radius:9px;transition:.2s}
+  .hnav a:hover{color:var(--text);background:var(--glass)}
+  .lang{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+  .lang button{background:transparent;border:none;color:var(--muted);font-size:13px;font-weight:700;
+               padding:6px 14px;border-radius:8px;cursor:pointer;letter-spacing:.4px;transition:.2s;font-family:inherit}
+  .lang button:hover{color:var(--text);background:rgba(46,204,143,.08)}
+  .lang button.active{background:var(--acc2);color:#05231a;box-shadow:0 2px 10px rgba(46,204,143,.35)}
+  .cta{display:inline-block;background:linear-gradient(135deg,var(--acc2),#1fae7c);color:#05231a;
+       text-decoration:none;padding:15px 36px;border-radius:12px;font-weight:800;font-size:17px;
+       box-shadow:0 8px 30px rgba(46,204,143,.28);transition:.2s}
+  .cta:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(46,204,143,.4)}
+  .cta.ghost{background:var(--glass);border:1px solid var(--line);color:var(--text);
+             box-shadow:none;margin-left:12px}
+  .cta.ghost:hover{border-color:var(--acc);box-shadow:0 8px 26px rgba(79,140,255,.22);transform:none}
+  .cta.sm{padding:10px 22px;font-size:15px;border-radius:10px}
+  .hero{padding:74px 0 30px;text-align:center}
+  .badge{display:inline-flex;align-items:center;gap:8px;background:var(--glass);
+         border:1px solid var(--line);border-radius:30px;padding:7px 16px;
+         font-size:13px;font-weight:600;color:var(--acc2);letter-spacing:.6px;margin-bottom:22px}
+  .badge i{width:7px;height:7px;border-radius:50%;background:var(--acc2);box-shadow:0 0 8px var(--acc2)}
+  .hero h1{font-size:44px;line-height:1.14;max-width:800px;margin:0 auto 18px;font-weight:800;
+           background:linear-gradient(115deg,#fff 20%,#bcd4ff 55%,#7fe8c0 90%);
+           -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hero p{color:var(--muted);font-size:18px;max-width:680px;margin:0 auto 32px}
+  .hint{margin-top:14px;font-size:13px;color:var(--muted);opacity:.8}
+  /* ---- telegram alert mock ---- */
+  .chat{max-width:560px;margin:44px auto 0;text-align:left}
+  .chat .ch-head{display:flex;align-items:center;gap:10px;padding:12px 18px;
+                 background:rgba(17,25,46,.9);border:1px solid var(--line);
+                 border-radius:14px 14px 0 0;border-bottom:none;font-size:13.5px;color:var(--muted)}
+  .ch-head b{color:var(--text)}
+  .ch-head .live{color:var(--acc2);font-weight:800;font-size:11px;letter-spacing:1px;margin-left:auto}
+  .chat .bubble{background:rgba(17,25,46,.85);border:1px solid var(--line);
+                border-radius:0 0 14px 14px;padding:20px 22px;font:13.5px/1.7 "Cascadia Code",Consolas,Menlo,monospace;
+                color:#cfe3ff;position:relative;backdrop-filter:blur(8px)}
+  .bubble .bull{color:#7fe8c0;font-weight:800}
+  .bubble .bear{color:#ff6b7a;font-weight:800}
+  .bubble .k{color:#8ab4ff}.bubble .v{color:#ffd28a}.bubble .g{color:#93a1c3}
+  .bubble .pat{color:#ffb84d}
+  /* ---- section titles ---- */
+  h2{font-size:30px;margin:56px 0 6px;font-weight:800;text-align:center}
+  .sub{color:var(--muted);margin-bottom:26px;text-align:center}
+  /* ---- two products ---- */
+  .prod{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:34px 0 6px}
+  .pcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+         padding:28px 26px;position:relative;transition:.25s;backdrop-filter:blur(8px)}
+  .pcard:hover{transform:translateY(-4px);border-color:rgba(46,204,143,.4)}
+  .pcard .tag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+              background:linear-gradient(135deg,var(--acc2),#1fae7c);color:#05231a;
+              font-size:11.5px;font-weight:800;padding:4px 14px;border-radius:20px;letter-spacing:.5px;
+              box-shadow:0 6px 18px rgba(46,204,143,.4);white-space:nowrap}
+  .pcard .tag.blue{background:linear-gradient(135deg,var(--acc),#3b6fd6);color:#fff;
+                   box-shadow:0 6px 18px rgba(79,140,255,.4)}
+  .pcard h3{font-size:20px;margin:6px 0 10px;font-weight:800}
+  .pcard p{color:var(--muted);font-size:15px;margin-bottom:16px}
+  .pcard ul{list-style:none;font-size:14.5px;color:var(--muted)}
+  .pcard li{padding:7px 0 7px 26px;position:relative;border-bottom:1px dashed rgba(120,150,210,.1)}
+  .pcard li:last-child{border-bottom:none}
+  .pcard li::before{content:"✓";position:absolute;left:0;top:6px;color:var(--acc2);font-weight:800}
+  .pcard .ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+              background:rgba(46,204,143,.12);border:1px solid rgba(46,204,143,.25);font-size:22px;margin-bottom:12px}
+  .pcard.blue .ico{background:rgba(79,140,255,.12);border-color:rgba(79,140,255,.3)}
+  /* ---- feature grid ---- */
+  .feat{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:8px 0 10px}
+  .fitem{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+         padding:22px 20px;transition:.25s;backdrop-filter:blur(8px)}
+  .fitem:hover{transform:translateY(-3px);border-color:rgba(79,140,255,.4)}
+  .fitem .fi{font-size:26px;margin-bottom:12px}
+  .fitem h4{font-size:16px;margin-bottom:6px;font-weight:800}
+  .fitem p{color:var(--muted);font-size:13.5px;margin:0}
+  /* ---- pairs ---- */
+  .pairs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:18px 0 8px}
+  .pairs span{background:var(--glass);border:1px solid var(--line);border-radius:20px;
+              padding:6px 14px;font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.4px}
+  .pairs span:hover{color:var(--text);border-color:rgba(46,204,143,.45)}
+  /* ---- image placeholder ---- */
+  .ph{border:2px dashed rgba(120,150,210,.35);border-radius:var(--radius);padding:44px 24px;
+      text-align:center;color:var(--muted);background:rgba(255,255,255,.02);margin:18px 0}
+.shot{display:block;width:100%;height:auto;border-radius:var(--radius);border:1px solid rgba(120,150,210,.28);box-shadow:0 12px 44px rgba(0,0,0,.5);margin:18px 0;background:#0a0f1e}
+  .ph .em{font-size:34px;display:block;margin-bottom:10px}
+  .ph b{color:var(--text)}
+  .ph small{display:block;margin-top:6px;font-size:12.5px;opacity:.75}
+  /* ---- steps ---- */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:34px 0 10px}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+        padding:26px 24px;position:relative;transition:.25s;backdrop-filter:blur(8px)}
+  .step:hover{transform:translateY(-4px);border-color:rgba(46,204,143,.4)}
+  .step .n{color:var(--acc2);font-weight:800;font-size:12px;letter-spacing:1.6px;margin-bottom:6px}
+  .step h3{margin:0 0 8px;font-size:18px;font-weight:700}
+  .step p{color:var(--muted);font-size:15px}
+  /* ---- faq ---- */
+  .faq{max-width:820px;margin:8px auto 10px}
+  .faq details{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;padding:0 18px}
+  .faq summary{cursor:pointer;padding:16px 0;font-weight:700;font-size:15.5px;list-style:none;
+               display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";color:var(--acc2);font-size:20px;font-weight:800;transition:.2s}
+  .faq details[open] summary::after{transform:rotate(45deg)}
+  .faq details p{color:var(--muted);font-size:14.5px;padding:0 0 16px;margin:0}
+  footer{border-top:1px solid var(--line);margin-top:70px;padding:30px 0;color:var(--muted);font-size:14px;text-align:center}
+  footer a{color:var(--acc2);text-decoration:none}
+  footer a:hover{text-decoration:underline}
+  .fnote{max-width:760px;margin:18px auto 0;font-size:12.5px;opacity:.7}
+.langs{margin:56px auto 0;max-width:820px;text-align:center}
+.langs h3{font-size:17px;font-weight:800;margin:0 0 6px;letter-spacing:.3px}
+.langs p{color:var(--muted);font-size:14px;margin:0 0 14px}
+.langs .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.langs .chips span{background:var(--glass);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:700;color:var(--text);letter-spacing:.5px}
+
+  @media(max-width:900px){.feat{grid-template-columns:1fr 1fr}.prod{grid-template-columns:1fr}}
+  @media(max-width:760px){
+    .steps{grid-template-columns:1fr}
+    .feat{grid-template-columns:1fr}
+    .hero h1{font-size:32px}
+    .hnav{display:none}
+    .hero{padding:52px 0 20px}
+  }
+  @media(max-width:560px){.prod{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="bgfx"></div>
+
+<header>
+  <div class="wrap hrow">
+    <div class="logo"><span class="dot"></span>CleanTrade <span>Signals</span></div>
+    <div class="hright">
+      <nav class="hnav">
+        <a href="#screener" data-i18n="nav_screener">Screener</a>
+        <a href="#indicator" data-i18n="nav_indicator">Indicator</a>
+        <a href="#how" data-i18n="nav_how">How it works</a>
+        <a href="#faq" data-i18n="nav_faq">FAQ</a>
+      </nav>
+      <div class="lang" role="group" aria-label="Language">
+        <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" data-lang="ua" onclick="setLang('ua')">UA</button>
+        <button class="lang-btn" data-lang="ru" onclick="setLang('ru')">RU</button>
+      </div>
+      <a class="cta sm" href="https://t.me/CleanTrade_bot?start=landing" target="_blank" rel="noopener" data-i18n="cta_access">Get Access</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="badge"><i></i><span data-i18n="badge">15 pairs · 1h timeframe · Lifetime access</span></div>
+    <h1 data-i18n="hero_h1">Your smart start to crypto trading</h1>
+    <p data-i18n="hero_p">Real-time crypto signals in your pocket: a Telegram screener that watches 15 pairs around the clock, plus the CleanTrail Pine Script indicator to see structure, momentum and key levels. No subscriptions. No noise. Just lifetime value.</p>
+    <a class="cta" href="https://t.me/CleanTrade_bot?start=landing" target="_blank" rel="noopener" data-i18n="cta_telegram">Get Access via Telegram</a>
+    <a class="cta ghost" href="#what" data-i18n="cta_see">See what you get</a>
+    <div class="hint" data-i18n="hero_hint">One-time payment - 9.99 USDT (TRC20) · Instant auto-delivery · No subscription</div>
+
+    <!-- live preview: what a real alert looks like -->
+    <div class="chat">
+      <div class="ch-head"><span>📱</span><b>CleanTrade Signals</b> <span class="live">● LIVE</span></div>
+      <div class="bubble">
+        📢 <span class="bull">BTCUSDT: Bullish alert 📈</span><br>
+        <span class="k">💰 Price:</span> <span class="v">$77,413 (+1.90%)</span><br>
+        <span class="k">📏 Move:</span> <span class="v">332.8 ≥ 1.5×ATR</span> (221.9)<br>
+        <span class="k">📊 Volume:</span> <span class="v">4.57× vs avg</span><br>
+        <span class="k">🔥 OI:</span> <span class="v">+2.30%</span><br>
+        <span class="k">🔎 Pattern:</span> <span class="pat">bullish conviction - fresh longs entering</span><br>
+        <span class="k">🎯 TP3 (100%):</span> <span class="v">$78,225</span><br>
+        <span class="k">🎯 TP2 (62%):</span> <span class="v">$77,915</span><br>
+        <span class="k">🎯 TP1 (38%):</span> <span class="v">$77,723</span><br>
+        <span class="k">🛑 SL:</span> <span class="v">$76,872</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="what">
+  <div class="wrap">
+    <h2 data-i18n="wh_h">What you get</h2>
+    <p class="sub" data-i18n="wh_sub">Two tools, one payment - the screener watches the market, the indicator reads the chart.</p>
+    <div class="prod">
+      <div class="pcard">
+        <div class="tag" data-i18n="wh_tag1">Screener</div>
+        <div class="ico">🤖</div>
+        <h3 data-i18n="wh_h1">CleanTrade Screener Bot</h3>
+        <p data-i18n="wh_p1">Telegram bot with real-time market monitoring - alerts land the moment something moves.</p>
+        <ul>
+          <li data-i18n="wh_l1">Impulse moves - price + volume + open interest</li>
+          <li data-i18n="wh_l2">Fair Value Gaps (FVG)</li>
+          <li data-i18n="wh_l3">Liquidations over $100,000</li>
+          <li data-i18n="wh_l4">Session open / close timings</li>
+          <li data-i18n="wh_l5">15 pairs, 24/7, 1-hour timeframe</li>
+          <li data-i18n="wh_l6">Pattern hints: conviction vs squeeze</li>
+          <li data-i18n="wh_l7">Fibonacci targets + ATR stop on every alert</li>
+        </ul>
+      </div>
+      <div class="pcard blue">
+        <div class="tag blue" data-i18n="wh_tag2">Bonus - Indicator</div>
+        <div class="ico">📈</div>
+        <h3 data-i18n="wh_h2">CleanTrail Pine Script Indicator</h3>
+        <p data-i18n="wh_p2">Clean trend-following indicator with confirmed signals, practical filters and trailing stop logic.</p>
+        <ul>
+          <li data-i18n="wh_l8">Adaptive ATR trailing stop for clean exits</li>
+          <li data-i18n="wh_l9">HMA trend filter + volume confirmation</li>
+          <li data-i18n="wh_l10">RSI divergences spotted automatically</li>
+          <li data-i18n="wh_l11">Support & Resistance zones and pivot levels</li>
+          <li data-i18n="wh_l12">Sideways filter - no noise in ranges</li>
+          <li data-i18n="wh_l13">Fibonacci take-profit levels + SL labels on chart</li>
+          <li data-i18n="wh_l14">PDF guide with settings & strategy tips</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="screener">
+  <div class="wrap">
+    <h2 data-i18n="sc_h">CleanTrade Screener - real-time alerts</h2>
+    <p class="sub" data-i18n="sc_sub">Every alert is actionable: direction, strength, pattern and targets in one message.</p>
+    <div class="feat">
+      <div class="fitem">
+        <div class="fi">⚡</div>
+        <h4 data-i18n="sc1_h">Impulse Moves</h4>
+        <p data-i18n="sc1_p">Strong candles (body ≥ 1.5×ATR) on real volume (≥ 1.5× average). ATR adapts to each coin - BTC only fires on moves that matter for BTC.</p>
+      </div>
+      <div class="fitem">
+        <div class="fi">🧩</div>
+        <h4 data-i18n="sc2_h">Fair Value Gaps</h4>
+        <p data-i18n="sc2_p">Inefficient price areas on the 1h chart - classic zones where price tends to react or return.</p>
+      </div>
+      <div class="fitem">
+        <div class="fi">💥</div>
+        <h4 data-i18n="sc3_h">Liquidations $100K+</h4>
+        <p data-i18n="sc3_p">Large forced positions get flushed in real time - volatility fuel you can see before it fades.</p>
+      </div>
+      <div class="fitem">
+        <div class="fi">🕐</div>
+        <h4 data-i18n="sc4_h">Session Open / Close</h4>
+        <p data-i18n="sc4_p">London, New York, Asia - know exactly when liquidity enters and volatility tends to pick up.</p>
+      </div>
+      <div class="fitem">
+        <div class="fi">🔎</div>
+        <h4 data-i18n="sc5_h">Pattern hints</h4>
+        <p data-i18n="sc5_p">Price × OI explained: bullish / bearish conviction, short squeeze, long squeeze or flat OI - the story behind every move.</p>
+      </div>
+      <div class="fitem">
+        <div class="fi">🎯</div>
+        <h4 data-i18n="sc6_h">TP / SL on every alert</h4>
+        <p data-i18n="sc6_p">Fibonacci take-profits (38% / 62% / 100% of the measured swing) and an ATR-based stop-loss - plan your trade right from the message.</p>
+      </div>
+    </div>
+    <h3 style="text-align:center;font-size:16px;color:var(--muted);font-weight:700;letter-spacing:.4px;margin-top:26px" data-i18n="sc_pairs">MONITORED PAIRS</h3>
+    <div class="pairs">
+      <span>BTC</span><span>ETH</span><span>SOL</span><span>XRP</span><span>DOGE</span><span>PEPE</span>
+      <span>LDO</span><span>ADA</span><span>BNB</span><span>WIF</span><span>TON</span><span>LINK</span>
+      <span>ENA</span><span>LTC</span><span>ONDO</span>
+    </div>
+    <!-- 📸 IMAGE PLACEHOLDER 1: screenshot of a real alert in Telegram (any impulse / FVG / liquidation message). Size ~1200×800. Replace the .ph block below. -->
+    <img class="shot" src="images/screener.png" width="1200" height="350" alt="CleanTrade signals in Telegram: impulse, FVG, liquidation and session alerts" loading="lazy">
+  </div>
+</section>
+
+<section id="indicator">
+  <div class="wrap">
+    <h2 data-i18n="in_h">CleanTrail Indicator - the bonus</h2>
+    <p class="sub" data-i18n="in_sub">See structure, momentum and key levels directly on your TradingView chart.</p>
+    <div class="feat">
+      <div class="fitem">
+        <div class="fi">🛤️</div>
+        <h4 data-i18n="in1_h">Trailing stop</h4>
+        <p data-i18n="in1_p">The ATR trailing stop rides the trend and locks profits - you know exactly where to exit without watching the screen all day.</p>
+      </div>
+      <div class="fitem">
+        <div class="fi">🧭</div>
+        <h4 data-i18n="in2_h">HMA trend filter</h4>
+        <p data-i18n="in2_p">Hull Moving Average keeps you on the right side of the market and filters counter-trend noise.</p>
+      </div>
+      <div class="fitem">
+        <div class="fi">📊</div>
+        <h4 data-i18n="in3_h">Volume confirmation</h4>
+        <p data-i18n="in3_p">Signals only count when volume backs them - weak, silent moves stay silent.</p>
+      </div>
+      <div class="fitem">
+        <div class="fi">🔄</div>
+        <h4 data-i18n="in4_h">RSI divergences</h4>
+        <p data-i18n="in4_p">Hidden & regular divergences marked automatically - early warnings before reversals.</p>
+      </div>
+      <div class="fitem">
+        <div class="fi">🧱</div>
+        <h4 data-i18n="in5_h">S/R zones + pivots</h4>
+        <p data-i18n="in5_p">Support & Resistance zones and pivot levels drawn right on the chart for smarter entries and exits.</p>
+      </div>
+      <div class="fitem">
+        <div class="fi">🌊</div>
+        <h4 data-i18n="in6_h">Sideways filter</h4>
+        <p data-i18n="in6_p">Efficiency-Ratio filter detects ranges and stays quiet - but strong breakouts still get through.</p>
+      </div>
+    </div>
+    <!-- 📸 IMAGE PLACEHOLDER 2: screenshot of CleanTrail on a TradingView chart: triangles (signals), TP/SL labels, S/R zones, trailing stop line. Size ~1600×900. Replace the .ph block below. -->
+    <img class="shot" src="images/indicator.png" width="1900" height="750" alt="CleanTrail indicator on TradingView: entry triangles, TP/SL, S/R zones, trailing stop" loading="lazy">
+    <div style="text-align:center;margin:10px 0 0">
+      <a class="cta" href="https://t.me/CleanTrade_bot?start=landing" target="_blank" rel="noopener" data-i18n="in_cta">Get CleanTrade + CleanTrail</a>
+      <div class="hint" data-i18n="in_hint">ZIP archive: .pine script + PDF setup & user guide</div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <h2 data-i18n="hw_h">How it works</h2>
+    <p class="sub" data-i18n="hw_sub">From payment to live signals in a few minutes.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="n" data-i18n="hw_n1">STEP 1</div>
+        <h3 data-i18n="hw_h1">Pay once</h3>
+        <p data-i18n="hw_p1">9.99 USDT (TRC20) via the Telegram bot - no subscription, no recurring fees, lifetime access.</p>
+      </div>
+      <div class="step">
+        <div class="n" data-i18n="hw_n2">STEP 2</div>
+        <h3 data-i18n="hw_h2">Get your tools</h3>
+        <p data-i18n="hw_p2">The bot auto-delivers the ZIP with the .pine indicator and the PDF guide, and activates your alerts instantly.</p>
+      </div>
+      <div class="step">
+        <div class="n" data-i18n="hw_n3">STEP 3</div>
+        <h3 data-i18n="hw_h3">Plug & play</h3>
+        <p data-i18n="hw_p3">Paste the script into TradingView, read the guide, and watch real-time signals land in your Telegram.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <h2>FAQ</h2>
+    <div class="faq">
+      <details>
+        <summary data-i18n="faq1_h">What do I get for 9.99 USDT?</summary>
+        <p data-i18n="faq1_p">Lifetime access: the CleanTrade Telegram screener bot (real-time alerts for 15 pairs) plus the CleanTrail indicator (.pine script) with a PDF setup & strategy guide. One-time payment, no subscription.</p>
+      </details>
+      <details>
+        <summary data-i18n="faq2_h">How fast do I get access?</summary>
+        <p data-i18n="faq2_p">Instantly. After the one-time USDT (TRC20) payment the bot auto-delivers the ZIP with the .pine script and PDF guide, and your alerts are active right away.</p>
+      </details>
+      <details>
+        <summary data-i18n="faq3_h">Which pairs does the screener monitor?</summary>
+        <p data-i18n="faq3_p">BTC, ETH, SOL, XRP, DOGE, PEPE, LDO, ADA, BNB, WIF, TON, LINK, ENA, LTC and ONDO - 15 pairs monitored around the clock on the 1-hour timeframe.</p>
+      </details>
+      <details>
+        <summary data-i18n="faq4_h">What does an impulse alert contain?</summary>
+        <p data-i18n="faq4_p">Direction, price change, move size vs ATR, volume vs average, open interest change, a pattern hint (conviction or squeeze), Fibonacci take-profit levels and an ATR-based stop-loss.</p>
+      </details>
+      <details>
+        <summary data-i18n="faq5_h">Is CleanTrail hard to set up?</summary>
+        <p data-i18n="faq5_p">No. You paste the .pine script into the TradingView Pine Editor, save it, and the included PDF guide walks you through the settings and strategy tips step by step. Built for beginners.</p>
+      </details>
+      <details>
+        <summary data-i18n="faq6_h">Is this financial advice?</summary>
+        <p data-i18n="faq6_p">No. CleanTrade signals and the CleanTrail indicator are technical analysis tools. They do not guarantee profit. Trade at your own discretion and always use risk management.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="langs">
+  <div class="wrap">
+    <h3 data-i18n="langs_h">📘 Full documentation included - in 7 languages</h3>
+    <p data-i18n="langs_p">User &amp; installation guides come with the product, ready in:</p>
+    <div class="chips"><span>EN</span><span>UA</span><span>RU</span><span>FR</span><span>ES</span><span>IT</span><span>DE</span></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <a href="https://t.me/CleanTrade_bot?start=landing" target="_blank" rel="noopener">@CleanTrade_bot</a> · 
+    <a href="https://t.me/CleanTradeSupport_bot?start=trail" target="_blank" rel="noopener" data-i18n="f_support">Support</a> · 
+    <a href="https://pay.cleantrade.info/" target="_blank" rel="noopener" data-i18n="f_api">Payment API</a>
+    <p class="fnote" data-i18n="f_note">CleanTrail indicator and CleanTrade screener are technical analysis tools. They do not guarantee profit or constitute financial advice. Use at your own discretion. © 2026 CleanTrade</p>
+    <p class="fnote" data-i18n="f_tm" style="opacity:.85">TradingView is a registered trademark of TradingView, Inc. CleanTrade is not affiliated with, endorsed by, or sponsored by TradingView.</p>
+  </div>
+</footer>
+
+<script>
+const I18N = {
+  en: {
+    title: "CleanTrade Crypto Signals - Screener Bot & Pine Script Indicator",
+    desc: "Real-time crypto signals: Telegram screener bot (impulse, FVG, liquidations, sessions) + CleanTrail Pine Script indicator. One-time 9.99 USDT, lifetime access.",
+    badge: "15 pairs · 1h timeframe · Lifetime access",
+    hero_h1: "Your smart start to crypto trading",
+    hero_p: "Real-time crypto signals in your pocket: a Telegram screener that watches 15 pairs around the clock, plus the CleanTrail Pine Script indicator to see structure, momentum and key levels. No subscriptions. No noise. Just lifetime value.",
+    cta_telegram: "Get Access via Telegram",
+    cta_see: "See what you get",
+    hero_hint: "One-time payment - 9.99 USDT (TRC20) · Instant auto-delivery · No subscription",
+    cta_access: "Get Access",
+    nav_screener: "Screener", nav_indicator: "Indicator", nav_how: "How it works", nav_faq: "FAQ",
+    wh_h: "What you get",
+    wh_sub: "Two tools, one payment - the screener watches the market, the indicator reads the chart.",
+    wh_tag1: "Screener",
+    wh_h1: "CleanTrade Screener Bot",
+    wh_p1: "Telegram bot with real-time market monitoring - alerts land the moment something moves.",
+    wh_l1: "Impulse moves - price + volume + open interest",
+    wh_l2: "Fair Value Gaps (FVG)",
+    wh_l3: "Liquidations over $100,000",
+    wh_l4: "Session open / close timings",
+    wh_l5: "15 pairs, 24/7, 1-hour timeframe",
+    wh_l6: "Pattern hints: conviction vs squeeze",
+    wh_l7: "Fibonacci targets + ATR stop on every alert",
+    wh_tag2: "Bonus - Indicator",
+    wh_h2: "CleanTrail Pine Script Indicator",
+    wh_p2: "Clean trend-following indicator with confirmed signals, practical filters and trailing stop logic.",
+    wh_l8: "Adaptive ATR trailing stop for clean exits",
+    wh_l9: "HMA trend filter + volume confirmation",
+    wh_l10: "RSI divergences spotted automatically",
+    wh_l11: "Support & Resistance zones and pivot levels",
+    wh_l12: "Sideways filter - no noise in ranges",
+    wh_l13: "Fibonacci take-profit levels + SL labels on chart",
+    wh_l14: "PDF guide with settings & strategy tips",
+    sc_h: "CleanTrade Screener - real-time alerts",
+    sc_sub: "Every alert is actionable: direction, strength, pattern and targets in one message.",
+    sc1_h: "Impulse Moves",
+    sc1_p: "Strong candles (body ≥ 1.5×ATR) on real volume (≥ 1.5× average). ATR adapts to each coin - BTC only fires on moves that matter for BTC.",
+    sc2_h: "Fair Value Gaps",
+    sc2_p: "Inefficient price areas on the 1h chart - classic zones where price tends to react or return.",
+    sc3_h: "Liquidations $100K+",
+    sc3_p: "Large forced positions get flushed in real time - volatility fuel you can see before it fades.",
+    sc4_h: "Session Open / Close",
+    sc4_p: "London, New York, Asia - know exactly when liquidity enters and volatility tends to pick up.",
+    sc5_h: "Pattern hints",
+    sc5_p: "Price × OI explained: bullish / bearish conviction, short squeeze, long squeeze or flat OI - the story behind every move.",
+    sc6_h: "TP / SL on every alert",
+    sc6_p: "Fibonacci take-profits (38% / 62% / 100% of the measured swing) and an ATR-based stop-loss - plan your trade right from the message.",
+    sc_pairs: "MONITORED PAIRS",
+    in_h: "CleanTrail Indicator - the bonus",
+    in_sub: "See structure, momentum and key levels directly on your TradingView chart.",
+    in1_h: "Trailing stop",
+    in1_p: "The ATR trailing stop rides the trend and locks profits - you know exactly where to exit without watching the screen all day.",
+    in2_h: "HMA trend filter",
+    in2_p: "Hull Moving Average keeps you on the right side of the market and filters counter-trend noise.",
+    in3_h: "Volume confirmation",
+    in3_p: "Signals only count when volume backs them - weak, silent moves stay silent.",
+    in4_h: "RSI divergences",
+    in4_p: "Hidden & regular divergences marked automatically - early warnings before reversals.",
+    in5_h: "S/R zones + pivots",
+    in5_p: "Support & Resistance zones and pivot levels drawn right on the chart for smarter entries and exits.",
+    in6_h: "Sideways filter",
+    in6_p: "Efficiency-Ratio filter detects ranges and stays quiet - but strong breakouts still get through.",
+    in_cta: "Get CleanTrade + CleanTrail",
+    in_hint: "ZIP archive: .pine script + PDF setup & user guide",
+    hw_h: "How it works",
+    hw_sub: "From payment to live signals in a few minutes.",
+    hw_n1: "STEP 1", hw_h1: "Pay once",
+    hw_p1: "9.99 USDT (TRC20) via the Telegram bot - no subscription, no recurring fees, lifetime access.",
+    hw_n2: "STEP 2", hw_h2: "Get your tools",
+    hw_p2: "The bot auto-delivers the ZIP with the .pine indicator and the PDF guide, and activates your alerts instantly.",
+    hw_n3: "STEP 3", hw_h3: "Plug & play",
+    hw_p3: "Paste the script into TradingView, read the guide, and watch real-time signals land in your Telegram.",
+    faq1_h: "What do I get for 9.99 USDT?",
+    faq1_p: "Lifetime access: the CleanTrade Telegram screener bot (real-time alerts for 15 pairs) plus the CleanTrail indicator (.pine script) with a PDF setup & strategy guide. One-time payment, no subscription.",
+    faq2_h: "How fast do I get access?",
+    faq2_p: "Instantly. After the one-time USDT (TRC20) payment the bot auto-delivers the ZIP with the .pine script and PDF guide, and your alerts are active right away.",
+    faq3_h: "Which pairs does the screener monitor?",
+    faq3_p: "BTC, ETH, SOL, XRP, DOGE, PEPE, LDO, ADA, BNB, WIF, TON, LINK, ENA, LTC and ONDO - 15 pairs monitored around the clock on the 1-hour timeframe.",
+    faq4_h: "What does an impulse alert contain?",
+    faq4_p: "Direction, price change, move size vs ATR, volume vs average, open interest change, a pattern hint (conviction or squeeze), Fibonacci take-profit levels and an ATR-based stop-loss.",
+    faq5_h: "Is CleanTrail hard to set up?",
+    faq5_p: "No. You paste the .pine script into the TradingView Pine Editor, save it, and the included PDF guide walks you through the settings and strategy tips step by step. Built for beginners.",
+    faq6_h: "Is this financial advice?",
+    faq6_p: "No. CleanTrade signals and the CleanTrail indicator are technical analysis tools. They do not guarantee profit. Trade at your own discretion and always use risk management.",
+    f_support: "Support", f_api: "Payment API",
+    f_note: "CleanTrail indicator and CleanTrade screener are technical analysis tools. They do not guarantee profit or constitute financial advice. Use at your own discretion. © 2026 CleanTrade",
+    f_tm: "TradingView is a registered trademark of TradingView, Inc. CleanTrade is not affiliated with, endorsed by, or sponsored by TradingView.",
+    langs_h: "📘 Full documentation included - in 7 languages",
+    langs_p: "User & installation guides come with the product, ready in:"
+  },
+  ua: {
+    title: "CleanTrade Crypto Signals - скринер-бот та індикатор Pine Script",
+    desc: "Криптосигнали в реальному часі: Telegram-скринер (імпульси, FVG, ліквідації, сесії) + індикатор CleanTrail на Pine Script. Разовий платіж 9.99 USDT, доступ назавжди.",
+    badge: "15 пар · таймфрейм 1 год · доступ назавжди",
+    hero_h1: "Ваш розумний старт у криптотрейдингу",
+    hero_p: "Криптосигнали в реальному часі у вашій кишені: Telegram-скринер, який стежить за 15 парами цілодобово, плюс індикатор CleanTrail на Pine Script - структура, імпульс і ключові рівні. Без підписок. Без шуму. Просто цінність назавжди.",
+    cta_telegram: "Отримати доступ через Telegram",
+    cta_see: "Що ви отримаєте",
+    hero_hint: "Разовий платіж - 9.99 USDT (TRC20) · Миттєва автовидача · Без підписки",
+    cta_access: "Отримати доступ",
+    nav_screener: "Скринер", nav_indicator: "Індикатор", nav_how: "Як це працює", nav_faq: "FAQ",
+    wh_h: "Що ви отримуєте",
+    wh_sub: "Два інструменти, одна оплата - скринер стежить за ринком, індикатор читає графік.",
+    wh_tag1: "Скринер",
+    wh_h1: "CleanTrade Screener Bot",
+    wh_p1: "Telegram-бот з моніторингом ринку в реальному часі - алерти приходять у момент руху.",
+    wh_l1: "Імпульсні рухи - ціна + обсяг + відкритий інтерес",
+    wh_l2: "Fair Value Gaps (FVG)",
+    wh_l3: "Ліквідації понад $100,000",
+    wh_l4: "Час відкриття / закриття сесій",
+    wh_l5: "15 пар, 24/7, таймфрейм 1 година",
+    wh_l6: "Підказки патернів: conviction vs squeeze",
+    wh_l7: "Фібо-тейки + ATR-стоп у кожному алерті",
+    wh_tag2: "Бонус - індикатор",
+    wh_h2: "Індикатор CleanTrail на Pine Script",
+    wh_p2: "Чистий трендовий індикатор з підтвердженими сигналами, практичними фільтрами та логікою трейлінг-стопа.",
+    wh_l8: "Адаптивний ATR трейлінг-стоп для чистих виходів",
+    wh_l9: "HMA тренд-фільтр + підтвердження обсягом",
+    wh_l10: "RSI-дивергенції визначаються автоматично",
+    wh_l11: "Зони підтримки/опору та півот-рівні",
+    wh_l12: "Фільтр боковика - без шуму в рейнджах",
+    wh_l13: "Фібо-тейки + мітки SL на графіку",
+    wh_l14: "PDF-гайд з налаштуваннями та порадами",
+    sc_h: "CleanTrade Screener - алерти в реальному часі",
+    sc_sub: "Кожен алерт практичний: напрямок, сила, патерн і цілі в одному повідомленні.",
+    sc1_h: "Імпульсні рухи",
+    sc1_p: "Сильні свічки (тіло ≥ 1.5×ATR) на реальному обсязі (≥ 1.5× від середнього). ATR підлаштовується під кожну монету - BTC стріляє лише на значущі для BTC рухи.",
+    sc2_h: "Fair Value Gaps",
+    sc2_p: "Неефективні зони ціни на 1h-графіку - класичні рівні, де ціна зазвичай реагує або повертається.",
+    sc3_h: "Ліквідації $100K+",
+    sc3_p: "Великі примусові позиції злітають у реальному часі - паливо волатильності, яке видно до того, як воно згасне.",
+    sc4_h: "Відкриття / закриття сесій",
+    sc4_p: "Лондон, Нью-Йорк, Азія - знайте точно, коли входить ліквідність і зростає волатильність.",
+    sc5_h: "Підказки патернів",
+    sc5_p: "Ціна × OI пояснено: bullish / bearish conviction, short squeeze, long squeeze або flat OI - історія кожного руху.",
+    sc6_h: "TP / SL у кожному алерті",
+    sc6_p: "Фібо-тейки (38% / 62% / 100% виміряного свинга) та стоп на основі ATR - плануйте угоду прямо з повідомлення.",
+    sc_pairs: "ПАРИ ПІД МОНІТОРИНГОМ",
+    in_h: "CleanTrail Indicator - бонус",
+    in_sub: "Бачте структуру, імпульс і ключові рівні прямо на графіку TradingView.",
+    in1_h: "Трейлінг-стоп",
+    in1_p: "ATR-трейлінг-стоп їде за трендом і фіксує прибуток - ви точно знаєте, де вийти, не дивлячись в екран весь день.",
+    in2_h: "HMA тренд-фільтр",
+    in2_p: "Hull Moving Average тримає вас на правильному боці ринку та фільтрує контр-трендовий шум.",
+    in3_h: "Підтвердження обсягом",
+    in3_p: "Сигнали зараховуються лише з обсягом - слабкі, мовчазні рухи залишаються мовчазними.",
+    in4_h: "RSI-дивергенції",
+    in4_p: "Приховані та звичайні дивергенції позначаються автоматично - ранні попередження перед розворотами.",
+    in5_h: "Зони S/R + півоти",
+    in5_p: "Зони підтримки/опору та півот-рівні наносяться прямо на графік для розумніших входів і виходів.",
+    in6_h: "Фільтр боковика",
+    in6_p: "Efficiency-Ratio фільтр визначає рейндж і мовчить - але сильні пробої все одно проходять.",
+    in_cta: "Отримати CleanTrade + CleanTrail",
+    in_hint: "ZIP-архів: .pine скрипт + PDF-гайд з налаштування",
+    hw_h: "Як це працює",
+    hw_sub: "Від оплати до живих сигналів за кілька хвилин.",
+    hw_n1: "КРОК 1", hw_h1: "Платіть один раз",
+    hw_p1: "9.99 USDT (TRC20) через Telegram-бота - без підписки, без повторних платежів, доступ назавжди.",
+    hw_n2: "КРОК 2", hw_h2: "Отримуєте інструменти",
+    hw_p2: "Бот миттєво видає ZIP з .pine індикатором і PDF-гайдом та активує ваші алерти.",
+    hw_n3: "КРОК 3", hw_h3: "Встав і працюй",
+    hw_p3: "Вставте скрипт у TradingView, прочитайте гайд і дивіться, як сигнали в реальному часі приходять у ваш Telegram.",
+    faq1_h: "Що я отримую за 9.99 USDT?",
+    faq1_p: "Доступ назавжди: Telegram-скринер CleanTrade (алерти в реальному часі для 15 пар) + індикатор CleanTrail на Pine Script (.pine) з PDF-гайдом. Разовий платіж, без підписки.",
+    faq2_h: "Як швидко я отримую доступ?",
+    faq2_p: "Миттєво. Після разової оплати USDT (TRC20) бот автоматично видає ZIP з .pine скриптом і PDF-гайдом, а ваші алерти активуються одразу.",
+    faq3_h: "За якими парами стежить скринер?",
+    faq3_p: "BTC, ETH, SOL, XRP, DOGE, PEPE, LDO, ADA, BNB, WIF, TON, LINK, ENA, LTC та ONDO - 15 пар цілодобово на 1-годинному таймфреймі.",
+    faq4_h: "Що містить імпульсний алерт?",
+    faq4_p: "Напрямок, зміну ціни, розмір руху vs ATR, обсяг vs середній, зміну відкритого інтересу, підказку патерну (conviction або squeeze), фібо-тейки та ATR-стоп.",
+    faq5_h: "Чи складно налаштувати CleanTrail?",
+    faq5_p: "Ні. Вставте .pine скрипт у Pine Editor TradingView, збережіть, а PDF-гайд покроково проведе вас по налаштуваннях і стратегіях. Створено для початківців.",
+    faq6_h: "Це фінансова порада?",
+    faq6_p: "Ні. Сигнали CleanTrade та індикатор CleanTrail - це інструменти технічного аналізу. Вони не гарантують прибутку. Торгуйте на власний розсуд і завжди використовуйте ризик-менеджмент.",
+    f_support: "Підтримка", f_api: "Payment API",
+    f_note: "Індикатор CleanTrail та скринер CleanTrade - це інструменти технічного аналізу. Вони не гарантують прибутку та не є фінансовою порадою. Використовуйте на власний розсуд. © 2026 CleanTrade",
+    f_tm: "TradingView - зареєстрована торгова марка TradingView, Inc. CleanTrade не пов'язаний з нею, не схвалений і не спонсорується нею.",
+    langs_h: "📘 Повна документація в комплекті - 7 мов",
+    langs_p: "Інструкції користувача та встановлення входять у продукт і доступні мовами:"
+  },
+  ru: {
+    title: "CleanTrade Crypto Signals - скринер-бот и индикатор Pine Script",
+    desc: "Криптосигналы в реальном времени: Telegram-скринер (импульсы, FVG, ликвидации, сессии) + индикатор CleanTrail на Pine Script. Разовый платёж 9.99 USDT, доступ навсегда.",
+    badge: "15 пар · таймфрейм 1 час · доступ навсегда",
+    hero_h1: "Ваш умный старт в криптотрейдинге",
+    hero_p: "Криптосигналы в реальном времени в вашем кармане: Telegram-скринер, который следит за 15 парами круглосуточно, плюс индикатор CleanTrail на Pine Script - структура, импульс и ключевые уровни. Без подписок. Без шума. Просто ценность навсегда.",
+    cta_telegram: "Получить доступ через Telegram",
+    cta_see: "Что вы получаете",
+    hero_hint: "Разовый платёж - 9.99 USDT (TRC20) · Мгновенная автовыдача · Без подписки",
+    cta_access: "Получить доступ",
+    nav_screener: "Скринер", nav_indicator: "Индикатор", nav_how: "Как это работает", nav_faq: "FAQ",
+    wh_h: "Что вы получаете",
+    wh_sub: "Два инструмента, одна оплата - скринер следит за рынком, индикатор читает график.",
+    wh_tag1: "Скринер",
+    wh_h1: "CleanTrade Screener Bot",
+    wh_p1: "Telegram-бот с мониторингом рынка в реальном времени - алерты приходят в момент движения.",
+    wh_l1: "Импульсные движения - цена + объём + открытый интерес",
+    wh_l2: "Fair Value Gaps (FVG)",
+    wh_l3: "Ликвидации свыше $100,000",
+    wh_l4: "Время открытия / закрытия сессий",
+    wh_l5: "15 пар, 24/7, таймфрейм 1 час",
+    wh_l6: "Подсказки паттернов: conviction vs squeeze",
+    wh_l7: "Фибо-тейки + ATR-стоп в каждом алерте",
+    wh_tag2: "Бонус - индикатор",
+    wh_h2: "Индикатор CleanTrail на Pine Script",
+    wh_p2: "Чистый трендовый индикатор с подтверждёнными сигналами, практичными фильтрами и логикой трейлинг-стопа.",
+    wh_l8: "Адаптивный ATR трейлинг-стоп для чистых выходов",
+    wh_l9: "HMA тренд-фильтр + подтверждение объёмом",
+    wh_l10: "RSI-дивергенции определяются автоматически",
+    wh_l11: "Зоны поддержки/сопротивления и пивот-уровни",
+    wh_l12: "Фильтр боковика - без шума в рейнджах",
+    wh_l13: "Фибо-тейки + метки SL на графике",
+    wh_l14: "PDF-гайд с настройками и советами",
+    sc_h: "CleanTrade Screener - алерты в реальном времени",
+    sc_sub: "Каждый алерт практичен: направление, сила, паттерн и цели в одном сообщении.",
+    sc1_h: "Импульсные движения",
+    sc1_p: "Сильные свечи (тело ≥ 1.5×ATR) на реальном объёме (≥ 1.5× от среднего). ATR подстраивается под каждую монету - BTC стреляет только на значимые для BTC движения.",
+    sc2_h: "Fair Value Gaps",
+    sc2_p: "Неэффективные зоны цены на 1h-графике - классические уровни, где цена обычно реагирует или возвращается.",
+    sc3_h: "Ликвидации $100K+",
+    sc3_p: "Крупные принудительные позиции слетают в реальном времени - топливо волатильности, которое видно до того, как оно погаснет.",
+    sc4_h: "Открытие / закрытие сессий",
+    sc4_p: "Лондон, Нью-Йорк, Азия - знайте точно, когда входит ликвидность и растёт волатильность.",
+    sc5_h: "Подсказки паттернов",
+    sc5_p: "Цена × OI объяснено: bullish / bearish conviction, short squeeze, long squeeze или flat OI - история каждого движения.",
+    sc6_h: "TP / SL в каждом алерте",
+    sc6_p: "Фибо-тейки (38% / 62% / 100% измеренного свинга) и стоп на основе ATR - планируйте сделку прямо из сообщения.",
+    sc_pairs: "ПАРЫ ПОД МОНИТОРИНГОМ",
+    in_h: "CleanTrail Indicator - бонус",
+    in_sub: "Видите структуру, импульс и ключевые уровни прямо на графике TradingView.",
+    in1_h: "Трейлинг-стоп",
+    in1_p: "ATR-трейлинг-стоп едет за трендом и фиксирует прибыль - вы точно знаете, где выйти, не глядя в экран весь день.",
+    in2_h: "HMA тренд-фильтр",
+    in2_p: "Hull Moving Average держит вас на правильной стороне рынка и фильтрует контртрендовый шум.",
+    in3_h: "Подтверждение объёмом",
+    in3_p: "Сигналы засчитываются только с объёмом - слабые, молчаливые движения остаются молчаливыми.",
+    in4_h: "RSI-дивергенции",
+    in4_p: "Скрытые и обычные дивергенции отмечаются автоматически - ранние предупреждения перед разворотами.",
+    in5_h: "Зоны S/R + пивоты",
+    in5_p: "Зоны поддержки/сопротивления и пивот-уровни наносятся прямо на график для более умных входов и выходов.",
+    in6_h: "Фильтр боковика",
+    in6_p: "Efficiency-Ratio фильтр определяет рейндж и молчит - но сильные пробои всё равно проходят.",
+    in_cta: "Получить CleanTrade + CleanTrail",
+    in_hint: "ZIP-архив: .pine скрипт + PDF-гайд по настройке",
+    hw_h: "Как это работает",
+    hw_sub: "От оплаты до живых сигналов за несколько минут.",
+    hw_n1: "ШАГ 1", hw_h1: "Платите один раз",
+    hw_p1: "9.99 USDT (TRC20) через Telegram-бота - без подписки, без повторных платежей, доступ навсегда.",
+    hw_n2: "ШАГ 2", hw_h2: "Получаете инструменты",
+    hw_p2: "Бот мгновенно выдаёт ZIP с .pine индикатором и PDF-гайдом и активирует ваши алерты.",
+    hw_n3: "ШАГ 3", hw_h3: "Вставь и работай",
+    hw_p3: "Вставьте скрипт в TradingView, прочитайте гайд и смотрите, как сигналы в реальном времени приходят в ваш Telegram.",
+    faq1_h: "Что я получаю за 9.99 USDT?",
+    faq1_p: "Доступ навсегда: Telegram-скринер CleanTrade (алерты в реальном времени для 15 пар) + индикатор CleanTrail на Pine Script (.pine) с PDF-гайдом. Разовый платёж, без подписки.",
+    faq2_h: "Как быстро я получаю доступ?",
+    faq2_p: "Мгновенно. После разовой оплаты USDT (TRC20) бот автоматически выдаёт ZIP с .pine скриптом и PDF-гайдом, а ваши алерты активируются сразу.",
+    faq3_h: "За какими парами следит скринер?",
+    faq3_p: "BTC, ETH, SOL, XRP, DOGE, PEPE, LDO, ADA, BNB, WIF, TON, LINK, ENA, LTC и ONDO - 15 пар круглосуточно на 1-часовом таймфрейме.",
+    faq4_h: "Что содержит импульсный алерт?",
+    faq4_p: "Направление, изменение цены, размер движения vs ATR, объём vs средний, изменение открытого интереса, подсказку паттерна (conviction или squeeze), фибо-тейки и ATR-стоп.",
+    faq5_h: "Сложно ли настроить CleanTrail?",
+    faq5_p: "Нет. Вставьте .pine скрипт в Pine Editor TradingView, сохраните, а PDF-гайд пошагово проведёт вас по настройкам и стратегиям. Создан для новичков.",
+    faq6_h: "Это финансовый совет?",
+    faq6_p: "Нет. Сигналы CleanTrade и индикатор CleanTrail - это инструменты технического анализа. Они не гарантируют прибыль. Торгуйте на свой страх и риск и всегда используйте риск-менеджмент.",
+    f_support: "Поддержка", f_api: "Payment API",
+    f_note: "Индикатор CleanTrail и скринер CleanTrade - это инструменты технического анализа. Они не гарантируют прибыль и не являются финансовым советом. Используйте на свой страх и риск. © 2026 CleanTrade",
+    f_tm: "TradingView - зарегистрированная торговая марка TradingView, Inc. CleanTrade не связан с ней, не одобрен и не спонсируется ею.",
+    langs_h: "📘 Полная документация в комплекте - 7 языков",
+    langs_p: "Инструкции пользователя и установки входят в продукт и доступны на языках:"
+  }
+};
+function applyLang(l){
+  document.documentElement.lang = l;
+  const t = I18N[l] || I18N.en;
+  if (t.title) document.title = t.title;
+  const mdesc = document.querySelector('meta[name="description"]');
+  if (mdesc && t.desc) mdesc.setAttribute('content', t.desc);
+  const ogm = (p, v) => { const el = document.querySelector('meta[property="' + p + '"]'); if (el && v) el.setAttribute('content', v); };
+  ogm('og:title', t.title); ogm('og:description', t.desc);
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const v = t[el.dataset.i18n];
+    if (v === undefined) return;
+    if (el.tagName === 'TEXT') el.textContent = v; else el.innerHTML = v;
+  });
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === l));
+  try { localStorage.setItem('ct_lang', l); } catch(e){}
+}
+function setLang(l){ applyLang(l); }
+document.addEventListener('DOMContentLoaded', () => { applyLang(localStorage.getItem('ct_lang') || 'en'); });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+<h1>Flat-fee vs percentage crypto gateways: honest math for micro-SaaS</h1>
+
+<img src="PASTE_COVER_URL_HERE" alt="Minimalist 3D illustration: developer laptop with a glowing code snippet client.create_order(...), a luminous path flowing directly into a floating wallet, bypassing a grey wall labeled gateway balance. Dark navy and teal, premium dev-tool aesthetic.">
+
+<p>If your micro-SaaS or Telegram bot takes crypto payments, the fee structure of your gateway quietly decides how much revenue you actually keep. Most processors charge a <strong>percentage of every payment</strong>. A few charge a <strong>flat monthly fee</strong>. Which one is really cheaper? The answer is uncomfortable - and it depends entirely on your volume. So let's do the math honestly, including the point where the percentage gateway wins.</p>
+
+<h2>The honest math</h2>
+
+<p>The top percentage gateways charge <strong>0.5% per transaction</strong> (NOWPayments, Plisio); Coinbase Commerce, CoinGate and BitPay sit at <strong>1% or more</strong>. It sounds small. Here's what 0.5% actually costs at different monthly volumes, next to CleanTrade's flat $29.99 Pro plan:</p>
+
+<pre>Monthly volume | 0.5% gateway fee | Flat $29.99 | Winner
+$1,000         | $5              | $29.99      | percentage by $24.99
+$3,000         | $15             | $29.99      | percentage by $14.99
+$6,000         | $30             | $29.99      | ~break-even
+$10,000        | $50             | $29.99      | flat by $20.01
+$50,000        | $250            | $29.99      | flat by $220.01</pre>
+
+<p>On the cheaper <strong>$9.99 Starter</strong> plan the break-even drops to roughly <strong>$2,000/month</strong>. Below that, a percentage gateway is genuinely cheaper - and any honest flat-rate provider should say so out loud.</p>
+
+<h2>Why percentage fees still sting</h2>
+
+<ol>
+<li><strong>They scale against you.</strong> The more your micro-SaaS earns, the more the gateway earns from you. A flat fee stays flat. Your cost structure should be predictable, not a bet against your own growth.</li>
+<li><strong>They stack with everything else.</strong> Network fees, FX spread on crypto-to-fiat, withdrawal fees - the "0.5%" is rarely the only cost.</li>
+<li><strong>They punish high-ticket items.</strong> Sell a $499 course at 1%? That's ~$5 per sale. At volume, it adds up.</li>
+</ol>
+
+<h2>The real reason to switch isn't the fee - it's custody and DX</h2>
+
+<p>Flat vs percentage is a real question, but it's the <strong>second</strong> question. The first: <strong>where does the money live?</strong></p>
+
+<ul>
+<li><strong>Custodial gateways</strong> hold your funds on their balance until you withdraw - and can freeze or delay payouts.</li>
+<li><strong>Non-custodial</strong> means the payment lands directly on <em>your own</em> wallet from the first second.</li>
+</ul>
+
+<p>CleanTrade is non-custodial and flat: no KYC, no approval queue, API key in about a minute, webhooks with retries, ~30-second detection via unique-amount matching (no smart contracts, no gas fees).</p>
+
+<h2>Three lines of code</h2>
+
+<pre>from cleantrade import Client
+
+client = Client("sp_live_YOUR_KEY")                  # API key in ~a minute, no KYC
+order = client.create_order(product_id="course.zip") # unique amount, e.g. 19.57
+# show order.amount + order.wallet to the buyer; webhook fires with tx_id when paid</pre>
+
+<p>Real SDK, open source: <a href="https://github.com/smile-sk/cleantrade-python">github.com/smile-sk/cleantrade-python</a></p>
+
+<h2>Plans</h2>
+
+<pre>Plan     | Monthly | Yearly (12 months for the price of 10) | Orders/mo
+Free     | $0      | -                                     | 5
+Starter  | $9.99   | $99.90                                | 100
+Pro      | $29.99  | $299.90                               | 3,000
+Business | $79.99  | $799.90                               | Unlimited</pre>
+
+<h2>When percentage wins (honesty, again)</h2>
+
+<p>If you process under ~$2,000/month, a 0.5% gateway is cheaper than any flat plan. That's exactly why CleanTrade has a <strong>Free tier</strong> - start free, grow into flat pricing on the same integration, without switching gateways twice.</p>
+
+<h2>Bottom line</h2>
+
+<p>Flat pricing isn't a magic 10x saving - at realistic competitor rates it wins by a margin, not an order of magnitude. The bet worth making is <strong>self-custody and DX</strong>: a gateway that never touches your money and takes three lines of code to integrate.</p>
+
+<p>Try the calculator - it does this math for your numbers: <a href="https://pay.cleantrade.info/">pay.cleantrade.info</a></p>

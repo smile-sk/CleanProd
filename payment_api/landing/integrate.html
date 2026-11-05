@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="shortcut icon" href="/favicon.ico">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="title">Integration Guide - CleanTrade Payment API</title>
+<meta name="description" content="Accept USDT (TRC20) in 5 minutes: create an order, buyer pays a unique amount, webhook wakes your server. Copy-paste examples in Python, cURL, JavaScript.">
+<link rel="canonical" href="https://pay.cleantrade.info/integrate.html">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CleanTrade Payment API">
+<meta property="og:url" content="https://pay.cleantrade.info/integrate.html">
+<meta property="og:title" content="Integration Guide - CleanTrade Payment API">
+<meta property="og:description" content="Accept USDT (TRC20) in 5 minutes: create an order, buyer pays a unique amount, webhook wakes your server. Copy-paste examples in Python, cURL, JavaScript.">
+<meta property="og:image" content="https://pay.cleantrade.info/og-image.png">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Integration Guide - CleanTrade Payment API">
+<meta name="twitter:description" content="Accept USDT (TRC20) in 5 minutes with CleanTrade: order, unique amount, webhook, auto-delivery.">
+<meta name="twitter:image" content="https://pay.cleantrade.info/og-image.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Integration Guide - CleanTrade Payment API","url":"https://pay.cleantrade.info/integrate.html","description":"How to accept USDT (TRC20) payments in 5 minutes: create an order, buyer pays a unique amount, webhook wakes your server. Python, cURL, JavaScript examples.","isPartOf":{"@type":"WebSite","name":"CleanTrade Payment API","url":"https://pay.cleantrade.info/"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What if the buyer sends a different amount?","acceptedAnswer":{"@type":"Answer","text":"Amounts are matched to 2 decimals: 19.889 counts as 19.89. USDT on TRC20 stores 6 decimals, so a small tail is normal and still matches. If the amount really differs - no match and no webhook: the order stays created and expires in 24 hours. The money has already reached your wallet, so settling it with the buyer is up to you."}},{"@type":"Question","name":"How do I refund a payment?","acceptedAnswer":{"@type":"Answer","text":"The money goes straight to the wallet you passed in the order - we never hold it, so a refund is yours to make: send it back from the same wallet in your own transfer. There is nothing to request from us."}},{"@type":"Question","name":"Why TRC20 only?","acceptedAnswer":{"@type":"Answer","text":"USDT on Tron has the lowest fees (~1$) and is the standard for bot and indicator sales. Other networks can be added later."}},{"@type":"Question","name":"Is my API key safe?","acceptedAnswer":{"@type":"Answer","text":"Keep it server-side. Never put it in frontend code."}},{"@type":"Question","name":"What if I exceed my plan limit?","acceptedAnswer":{"@type":"Answer","text":"The API returns 402 Payment Required with a message. Upgrade on the subscription page - the key activates within a minute after we detect the payment."}},{"@type":"Question","name":"How do I contact support?","acceptedAnswer":{"@type":"Answer","text":"Telegram: @CleanTradeSupport_bot - we usually reply within a few hours. Mention your order_id or API key and we will help."}}]}
+</script>
+
+<style>
+  :root{
+    --bg:#070b16; --panel:rgba(17,25,46,.72); --line:rgba(120,150,210,.16);
+    --text:#e9eefb; --muted:#93a1c3; --acc:#4f8cff; --acc2:#2ecc8f; --warn:#ffb84d;
+    --glass:rgba(255,255,255,.04); --radius:16px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);color:var(--text);
+    font:16px/1.55 -apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+    overflow-x:hidden;
+  }
+  .bgfx{position:fixed;inset:0;z-index:-2;overflow:hidden;background:var(--bg)}
+  .bgfx::before{
+    content:"";position:absolute;inset:-20%;
+    background:
+      radial-gradient(38% 32% at 22% 18%, rgba(46,204,143,.20), transparent 60%),
+      radial-gradient(42% 36% at 78% 26%, rgba(79,140,255,.18), transparent 62%),
+      radial-gradient(50% 42% at 50% 88%, rgba(120,80,255,.14), transparent 64%),
+      radial-gradient(30% 26% at 88% 78%, rgba(46,204,143,.12), transparent 60%);
+    filter:blur(24px);
+    animation:aurora 26s ease-in-out infinite alternate;
+  }
+  @keyframes aurora{
+    0%{transform:translate3d(-2%,-1%,0) scale(1) rotate(0deg)}
+    50%{transform:translate3d(2%,2%,0) scale(1.08) rotate(2deg)}
+    100%{transform:translate3d(-1%,1%,0) scale(1.04) rotate(-2deg)}
+  }
+  .bgfx::after{
+    content:"";position:absolute;inset:0;opacity:.5;
+    background-image:
+      linear-gradient(rgba(120,150,210,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(120,150,210,.05) 1px, transparent 1px);
+    background-size:44px 44px;
+    mask-image:radial-gradient(70% 60% at 50% 30%, #000 30%, transparent 78%);
+  }
+  .wrap{max-width:1000px;margin:0 auto;padding:0 20px}
+  header{position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);
+         background:rgba(7,11,22,.72);border-bottom:1px solid var(--line)}
+  .hrow{display:flex;align-items:center;justify-content:space-between;gap:16px;height:64px}
+  .logo{font-weight:800;font-size:18px;letter-spacing:.3px;display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none}
+  .logo:hover,.logo:active,.logo:focus{color:inherit;text-decoration:none}
+  .logo .dot{width:12px;height:12px;border-radius:50%;background:var(--acc2);
+             box-shadow:0 0 12px var(--acc2);animation:pulse 2.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+  .logo span{color:var(--acc2)}
+  .lang{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+  .lang button{background:transparent;border:none;color:var(--muted);font-size:13px;font-weight:700;
+               padding:6px 14px;border-radius:8px;cursor:pointer;letter-spacing:.4px;transition:.2s}
+  .lang button:hover{color:var(--text)}
+  .lang button.active{background:var(--acc2);color:#05231a}
+  .hero{padding:60px 0 30px;text-align:center}
+  .hero h1{font-size:38px;line-height:1.15;font-weight:800;margin-bottom:14px;
+           background:linear-gradient(115deg,#fff 20%,#bcd4ff 55%,#7fe8c0 90%);
+           -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hero p{color:var(--muted);font-size:17px;max-width:680px;margin:0 auto 26px}
+  .cta{display:inline-block;background:linear-gradient(135deg,var(--acc2),#1fae7c);color:#05231a;
+       text-decoration:none;padding:13px 30px;border-radius:12px;font-weight:800;font-size:16px;
+       box-shadow:0 8px 30px rgba(46,204,143,.28);transition:.2s}
+  .cta:hover{transform:translateY(-2px)}
+  h2{font-size:26px;margin:48px 0 8px;font-weight:800}
+  .sub{color:var(--muted);margin-bottom:20px}
+  .steps{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:20px 0}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+        padding:20px;position:relative;backdrop-filter:blur(8px)}
+  .step .n{color:var(--acc2);font-weight:800;font-size:12px;letter-spacing:1.6px;margin-bottom:6px}
+  .step h3{margin:0 0 8px;font-size:17px}
+  .step p{color:var(--muted);font-size:14.5px}
+  .codebox{background:rgba(7,11,22,.9);border:1px solid var(--line);border-radius:var(--radius);
+           overflow:hidden;margin:10px 0 22px}
+  .codebox .bar{display:flex;gap:8px;padding:11px 16px;border-bottom:1px solid var(--line);
+                background:rgba(255,255,255,.03)}
+  .codebox .bar i{width:11px;height:11px;border-radius:50%;display:block}
+  .codebox .bar i:nth-child(1){background:#ff5f57}.codebox .bar i:nth-child(2){background:#febc2e}
+  .codebox .bar i:nth-child(3){background:#28c840}
+  pre{padding:18px 20px;overflow-x:auto;font:13.5px/1.65 "Cascadia Code",Consolas,Menlo,monospace;color:#cfe3ff}
+  .tok-c{color:#7fe8c0}.tok-k{color:#8ab4ff}.tok-s{color:#ffd28a}.tok-g{color:#93a1c3}.tok-p{color:#ff8ab0}
+  .tabbar{display:flex;gap:4px;padding:10px 16px 0}
+  .tabbar button{background:transparent;border:1px solid transparent;color:var(--muted);
+                 font-size:13px;font-weight:700;padding:8px 16px;border-radius:9px 9px 0 0;cursor:pointer}
+  .tabbar button.active{background:rgba(7,11,22,.9);border-color:var(--line);color:var(--text)}
+  .tab{display:none}
+  .tab.active{display:block}
+  .note{background:rgba(255,184,77,.07);border:1px solid rgba(255,184,77,.28);border-radius:12px;
+        padding:14px 18px;color:var(--warn);font-size:14.5px;margin:8px 0 24px}
+  details{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+          padding:14px 18px;margin:10px 0;backdrop-filter:blur(8px)}
+  summary{cursor:pointer;font-weight:700;font-size:15px;color:var(--text)}
+  details p{color:var(--muted);font-size:14.5px;margin-top:10px}
+  footer{border-top:1px solid var(--line);margin-top:60px;padding:26px 0;color:var(--muted);font-size:14px}
+  footer a{color:var(--acc2);text-decoration:none}
+  @media(max-width:760px){.steps{grid-template-columns:1fr}.hero h1{font-size:28px}}
+</style>
+</head>
+<body>
+
+<div class="bgfx"></div>
+
+<header>
+  <div class="wrap hrow">
+    <a class="logo" href="/" style="text-decoration:none"><span class="dot"></span>CleanTrade <span>Payment API</span></a>
+    <div class="lang" role="group" aria-label="Language">
+      <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" data-lang="ua" onclick="setLang('ua')">UA</button>
+      <button class="lang-btn" data-lang="ru" onclick="setLang('ru')">RU</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <h1 data-i18n="h1">Integration Guide - 5 minutes to your first payment</h1>
+    <p data-i18n="sub">Everything you need to accept USDT (TRC20) in your bot or website. Copy-paste the examples - they work as-is.</p>
+    <a class="cta" data-i18n="cta_swagger" href="/docs">Try it live in Swagger</a>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2 data-i18n="s_h">How it works in 4 steps</h2>
+    <div class="steps">
+      <div class="step"><div class="n" data-i18n="s1_n">STEP 1</div><h3 data-i18n="s1_h">Get your API key</h3><p data-i18n="s1_p">Subscribe on the pricing page - you get a key like <b>sp_live_...</b> (free plan at once, a paid plan within a minute after we detect the payment). It identifies you and counts your plan limit.</p></div>
+      <div class="step"><div class="n" data-i18n="s2_n">STEP 2</div><h3 data-i18n="s2_h">Create an order</h3><p data-i18n="s2_p">Call POST /v1/orders. You receive a unique amount (9.57, 9.84…) and the TRC20 address for that order.</p></div>
+      <div class="step"><div class="n" data-i18n="s3_n">STEP 3</div><h3 data-i18n="s3_h">Buyer pays</h3><p data-i18n="s3_p">Show the amount + address. The buyer sends USDT (TRC20) - we detect the match and fire your webhook.</p></div>
+      <div class="step"><div class="n" data-i18n="s4_n">STEP 4</div><h3 data-i18n="s4_h">Webhook → deliver</h3><p data-i18n="s4_p">We detect the payment in ~30 sec and send a webhook with tx_id. Your code delivers the key, file or access.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2 data-i18n="c_h">Copy-paste code</h2>
+    <p class="sub" data-i18n="c_sub">Pick your language. Both examples do the same: create an order and poll it.</p>
+
+    <div class="tabbar">
+      <button class="tab-btn active" data-tab="py" onclick="switchTab('py')">Python</button>
+      <button class="tab-btn" data-tab="curl" onclick="switchTab('curl')">cURL</button>
+      <button class="tab-btn" data-tab="js" onclick="switchTab('js')">JavaScript</button>
+    </div>
+
+    <div class="codebox">
+      <div class="bar"><i></i><i></i><i></i></div>
+      <div id="tab-py" class="tab active">
+<pre><span class="tok-c"># pip install requests</span>
+<span class="tok-k">import</span> requests, time
+
+API = <span class="tok-s">"https://pay.cleantrade.info"</span>
+KEY = <span class="tok-s">"sp_live_YOUR_KEY"</span>
+
+<span class="tok-c"># 1. create an order</span>
+r = requests.post(f<span class="tok-s">"{API}/v1/orders"</span>,
+    json={<span class="tok-s">"product_id"</span>: <span class="tok-s">"indicator.zip"</span>,
+          <span class="tok-s">"wallet"</span>: <span class="tok-s">"TRX_ADDRESS"</span>,  <span class="tok-c"># your TRC20 wallet</span>,
+          <span class="tok-s">"customer_ref"</span>: <span class="tok-s">"user123"</span>,
+          <span class="tok-s">"webhook_url"</span>: <span class="tok-s">"https://my.site/hook"</span>},
+    headers={<span class="tok-s">"X-API-Key"</span>: KEY})
+order = r.json()
+print(<span class="tok-s">"Show buyer:"</span>, order[<span class="tok-s">"amount"</span>], <span class="tok-s">"USDT to"</span>, order[<span class="tok-s">"wallet"</span>])
+
+<span class="tok-c"># 2. wait for payment (or just wait for the webhook)</span>
+<span class="tok-k">while</span> True:
+    st = requests.get(f<span class="tok-s">"{API}/v1/orders/{order['order_id']}"</span>,
+                      headers={<span class="tok-s">"X-API-Key"</span>: KEY}).json()
+    <span class="tok-k">if</span> st[<span class="tok-s">"status"</span>] == <span class="tok-s">"paid"</span>:
+        print(<span class="tok-s">"Paid!"</span>, st[<span class="tok-s">"tx_id"</span>])
+        <span class="tok-c"># deliver the goods here</span>
+        <span class="tok-k">break</span>
+    time.sleep(5)</pre>
+      </div>
+      <div id="tab-curl" class="tab">
+<pre><span class="tok-c"># 1. create an order</span>
+curl -X POST <span class="tok-s">https://pay.cleantrade.info/v1/orders</span> \
+  -H <span class="tok-s">"X-API-Key: sp_live_YOUR_KEY"</span> \
+  -H <span class="tok-s">"Content-Type: application/json"</span> \
+  -d <span class="tok-s">'{"product_id":"indicator.zip","wallet":"TRX_ADDRESS","customer_ref":"user123","webhook_url":"https://my.site/hook"}'</span>
+
+<span class="tok-c"># → {"order_id":"abc123","amount":9.57,"wallet":"T...","status":"created"}</span>
+
+<span class="tok-c"># 2. check status</span>
+curl <span class="tok-s">https://pay.cleantrade.info/v1/orders/abc123</span> \
+  -H <span class="tok-s">"X-API-Key: sp_live_YOUR_KEY"</span>
+
+<span class="tok-c"># → {"status":"paid","tx_id":"6b3a..."}</span></pre>
+      </div>
+      <div id="tab-js" class="tab">
+<pre><span class="tok-c">// for websites: vanilla fetch</span>
+<span class="tok-k">const</span> API = <span class="tok-s">"https://pay.cleantrade.info"</span>;
+
+<span class="tok-c">// 1. create an order</span>
+<span class="tok-k">const</span> res = <span class="tok-k">await</span> fetch(API + <span class="tok-s">"/v1/orders"</span>, {
+  method: <span class="tok-s">"POST"</span>,
+  headers: { <span class="tok-s">"X-API-Key"</span>: <span class="tok-s">"sp_live_YOUR_KEY"</span>, <span class="tok-s">"Content-Type"</span>: <span class="tok-s">"application/json"</span> },
+  body: JSON.stringify({ product_id: <span class="tok-s">"indicator.zip"</span>, wallet: <span class="tok-s">"TRX_ADDRESS"</span>, webhook_url: <span class="tok-s">"https://my.site/hook"</span> })
+});
+<span class="tok-k">const</span> order = <span class="tok-k">await</span> res.json();
+console.log(<span class="tok-s">"Show buyer:"</span>, order.amount, order.wallet);
+
+<span class="tok-c">// 2. poll until paid</span>
+<span class="tok-k">const</span> t = setInterval(<span class="tok-k">async</span> () =&gt; {
+  <span class="tok-k">const</span> st = <span class="tok-k">await</span> (await fetch(API + <span class="tok-s">`/v1/orders/${order.order_id}`</span>,
+    { headers: { <span class="tok-s">"X-API-Key"</span>: <span class="tok-s">"sp_live_YOUR_KEY"</span> } })).json();
+  <span class="tok-k">if</span> (st.status === <span class="tok-s">"paid"</span>) { clearInterval(t); console.log(<span class="tok-s">"Paid!"</span>, st.tx_id); }
+}, 5000);</pre>
+      </div>
+    </div>
+    <div class="note" data-i18n="c_note">wallet is required: pass your own TRC20 address in every order. Amounts are unique within that wallet, so two merchants can use the same amount.</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2 data-i18n="wh_h">Webhook receiver (auto-delivery)</h2>
+    <p class="sub" data-i18n="wh_sub">The simplest way: we call YOUR url when the payment arrives. Here is a ready-made receiver for Python (aiohttp):</p>
+    <div class="codebox">
+      <div class="bar"><i></i><i></i><i></i></div>
+<pre><span class="tok-c"># pip install aiohttp   → run: python webhook.py</span>
+<span class="tok-k">from</span> aiohttp <span class="tok-k">import</span> web
+
+<span class="tok-k">async def</span> hook(request):
+    data = <span class="tok-k">await</span> request.json()
+    <span class="tok-k">if</span> data[<span class="tok-s">"status"</span>] == <span class="tok-s">"paid"</span>:
+        print(<span class="tok-s">"ORDER PAID:"</span>, data[<span class="tok-s">"order_id"</span>], data[<span class="tok-s">"tx_id"</span>])
+        <span class="tok-c"># ← deliver the goods here (file, key, access)</span>
+    <span class="tok-k">return</span> web.Response(text=<span class="tok-s">"ok"</span>)
+
+app = web.Application()
+app.router.add_post(<span class="tok-s">"/hook"</span>, hook)
+web.run_app(app, port=<span class="tok-p">8081</span>)</pre>
+    </div>
+    <div class="note" data-i18n="wh_note">Webhook payload: {"order_id","product_id","status":"paid","amount","wallet","tx_id","paid_at","customer_ref"}. We retry up to 5 times if your server doesn't answer 200.</div>
+    <div class="note" data-i18n="wh_sig">Every delivery is signed: headers X-CleanTrade-Timestamp and X-CleanTrade-Signature (HMAC-SHA256 of timestamp + "." + raw request body, prefix sha256=). Your signing secret is personal to your account: it arrives in Telegram together with the API key and is also returned by GET /v1/subscribers/me. Verify the signature and the freshness of the timestamp before you deliver goods.</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2 data-i18n="faq_h">FAQ</h2>
+    <details><summary data-i18n="fq1_q">What if the buyer sends a different amount?</summary><p data-i18n="fq1_a">Amounts are matched to 2 decimals: 19.889 counts as 19.89. USDT on TRC20 stores 6 decimals, so a small tail (19.889 vs 19.89) is normal and still matches. If the amount really differs (e.g. 19.88 vs 19.89) - no match and no webhook: the order stays created and expires in 24 hours. The money has already reached your wallet, so settling it with the buyer is up to you.</p></details>
+    <details><summary data-i18n="fq2_q">How do I refund a payment?</summary><p data-i18n="fq2_a">The money goes straight to the wallet you passed in the order - we never hold it, so a refund is yours to make: send it back from the same wallet in your own transfer. There is nothing to request from us.</p></details>
+    <details><summary data-i18n="fq3_q">Why TRC20 only?</summary><p data-i18n="fq3_a">USDT on Tron has the lowest fees (~1$) and is the standard for bot/indicator sales. Other networks can be added later.</p></details>
+    <details><summary data-i18n="fq4_q">Is my API key safe?</summary><p data-i18n="fq4_a">Keep it server-side. Never put it in frontend code.</p></details>
+    <details><summary data-i18n="fq5_q">What if I exceed my plan limit?</summary><p data-i18n="fq5_a">The API returns 402 Payment Required with a message. Upgrade in the subscription page - the key activates within a minute after we detect the payment.</p></details>
+    <details><summary data-i18n="fq6_q">How do I contact support?</summary><p data-i18n="fq6_a">Telegram: @CleanTradeSupport_bot - we usually reply within a few hours. Mention your order_id or API key and we will help.</p></details>
+    <details><summary data-i18n="fq7_q">A buyer says he paid, but I got no webhook. What now?</summary><p data-i18n="fq7_a">Open the order. If it is still "created", no matching transfer has been seen yet - the buyer may have sent a different amount, on another network, or after the order expired. The rule is public: we credit an order when an incoming USDT TRC20 transfer of exactly the order amount reaches the wallet named in that order after it was created and before it expired. Anyone can verify it on Tronscan with the wallet from the order - the blockchain is the record. Send us the order_id and we will give you the check log for it: the time window, how many times we scanned the wallet, and what we saw.</p></details>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span data-i18n="footer">CleanTrade Payment API · accept USDT (TRC20) with unique amounts</span> ·
+    <a href="/" data-i18n="f_home">Home</a> · <a href="/docs" data-i18n="f_docs">Swagger docs</a> · <a href="https://t.me/CleanTradeSupport_bot?start=pay" data-i18n="f_support">Support</a>
+  </div>
+</footer>
+
+<script>
+const I18N = {
+  en: {
+    title: "Integration Guide - CleanTrade Payment API",
+    h1: "Integration Guide - 5 minutes to your first payment",
+    sub: "Everything you need to accept USDT (TRC20) in your bot or website. Copy-paste the examples - they work as-is.",
+    cta_swagger: "Try it live in Swagger",
+    s_h: "How it works in 4 steps",
+    s1_n: "STEP 1", s1_h: "Get your API key", s1_p: "Subscribe on the pricing page - you get a key like <b>sp_live_...</b> (free plan at once, a paid plan within a minute after we detect the payment). It identifies you and counts your plan limit.",
+    s2_n: "STEP 2", s2_h: "Create an order", s2_p: "Call POST /v1/orders with your TRC20 wallet. You receive a unique amount (9.57, 9.84…) for that order - the same address comes back in the response.",
+    s3_n: "STEP 3", s3_h: "Buyer pays", s3_p: "Show the buyer the amount and your address. They send USDT (TRC20) - we see the transfer on that wallet and fire your webhook.",
+    s4_n: "STEP 4", s4_h: "Webhook → deliver", s4_p: "We detect the payment in ~30 sec and send a webhook with tx_id. Your code delivers the key, file or access.",
+    c_h: "Copy-paste code", c_sub: "Pick your language. Both examples do the same: create an order and poll it.",
+    c_note: "wallet is required: pass your own TRC20 address in every order. Amounts are unique within that wallet, so two merchants can use the same amount.",
+    wh_h: "Webhook receiver (auto-delivery)", wh_sub: "The simplest way: we call YOUR url when the payment arrives. Here is a ready-made receiver for Python (aiohttp):",
+    wh_note: "Webhook payload: {\"order_id\",\"product_id\",\"status\":\"paid\",\"amount\",\"wallet\",\"tx_id\",\"paid_at\",\"customer_ref\"}. We retry up to 5 times if your server doesn't answer 200.",
+    wh_sig: "Every delivery is signed: headers X-CleanTrade-Timestamp and X-CleanTrade-Signature (HMAC-SHA256 of timestamp + \".\" + raw request body, prefix sha256=). Your signing secret is personal to your account: it arrives in Telegram together with the API key and is also returned by GET /v1/subscribers/me. Verify the signature and the freshness of the timestamp before you deliver goods.",
+    faq_h: "FAQ",
+    fq1_q: "What if the buyer sends a different amount?", fq1_a: "Amounts are matched to 2 decimals: 19.889 counts as 19.89. USDT on TRC20 stores 6 decimals, so a small tail (19.889 vs 19.89) is normal and still matches. If the amount really differs (e.g. 19.88 vs 19.89) - no match and no webhook: the order stays created and expires in 24 hours. The money has already reached your wallet, so settling it with the buyer is up to you.",
+    fq2_q: "How do I refund a payment?", fq2_a: "The money goes straight to the wallet you passed in the order - we never hold it, so a refund is yours to make: send it back from the same wallet in your own transfer. There is nothing to request from us.",
+    fq3_q: "Why TRC20 only?", fq3_a: "USDT on Tron has the lowest fees (~1$) and is the standard for bot/indicator sales. Other networks can be added later.",
+    fq4_q: "Is my API key safe?", fq4_a: "Keep it server-side. Never put it in frontend code.",
+    fq5_q: "What if I exceed my plan limit?", fq5_a: "The API returns 402 Payment Required with a message. Upgrade in the subscription page - the key activates within a minute after we detect the payment.",
+    fq6_q: "How do I contact support?", fq6_a: "Telegram: @CleanTradeSupport_bot - we usually reply within a few hours. Mention your order_id or API key and we will help.",
+    fq7_q: "A buyer says he paid, but I got no webhook. What now?", fq7_a: "Open the order. If it is still \"created\", no matching transfer has been seen yet - the buyer may have sent a different amount, on another network, or after the order expired. The rule is public: we credit an order when an incoming USDT TRC20 transfer of exactly the order amount reaches the wallet named in that order after it was created and before it expired. Anyone can verify it on Tronscan with the wallet from the order - the blockchain is the record. Send us the order_id and we will give you the check log for it: the time window, how many times we scanned the wallet, and what we saw.",
+    footer: "CleanTrade Payment API · accept USDT (TRC20) with unique amounts", f_home: "Home", f_docs: "Swagger docs", f_support: "Support"
+  },
+  ua: {
+    title: "Інтеграція - CleanTrade Payment API",
+    h1: "Інтеграція - 5 хвилин до першого платежу",
+    sub: "Все, щоб приймати USDT (TRC20) у своєму боті чи на сайті. Копіюй приклади - вони працюють як є.",
+    cta_swagger: "Спробувати в Swagger",
+    s_h: "Як це працює - 4 кроки",
+    s1_n: "КРОК 1", s1_h: "Отримуєш API-ключ", s1_p: "Обери тариф - отримуєш ключ <b>sp_live_...</b> (free одразу, платний - протягом хвилини після того, як ми знайдемо оплату). Він ідентифікує тебе та лічить ліміт плану.",
+    s2_n: "КРОК 2", s2_h: "Створюєш замовлення", s2_p: "Викликаєш POST /v1/orders зі своїм TRC20-гаманцем. Отримуєш унікальну суму (9.57, 9.84…) для цього замовлення - та сама адреса повертається у відповіді.",
+    s3_n: "КРОК 3", s3_h: "Покупець платить", s3_p: "Показуєш покупцю суму й свою адресу. Він надсилає USDT (TRC20) - ми бачимо переказ на цьому гаманці й шлемо твій вебхук.",
+    s4_n: "КРОК 4", s4_h: "Вебхук → видача", s4_p: "Ми ловимо оплату за ~30 сек і шлемо вебхук з tx_id. Твій код видає ключ, файл чи доступ.",
+    c_h: "Готовий код", c_sub: "Обери мову. Обидва приклади роблять те саме: створюють замовлення й чекають оплату.",
+    c_note: "wallet обов'язковий: передавай власну TRC20-адресу в кожному замовленні. Суми унікальні в межах цього гаманця, тому два мерчанти можуть мати однакову суму.",
+    wh_h: "Приймач вебхуків (автовидача)", wh_sub: "Найпростіше: ми самі викликаємо ТВІЙ url, коли приходить оплата. Готовий приймач на Python (aiohttp):",
+    wh_note: "Payload вебхука: {\"order_id\",\"product_id\",\"status\":\"paid\",\"amount\",\"wallet\",\"tx_id\",\"paid_at\",\"customer_ref\"}. Повторюємо до 5 разів, якщо твій сервер не відповів 200.",
+    wh_sig: "Кожна доставка підписана: заголовки X-CleanTrade-Timestamp і X-CleanTrade-Signature (HMAC-SHA256 від timestamp + \".\" + сире тіло запиту, префікс sha256=). Секрет підпису персональний для твого акаунта: приходить у Telegram разом із API-ключем і віддається через GET /v1/subscribers/me. Перевіряй підпис і свіжість timestamp до того, як видати товар.",
+    faq_h: "Питання",
+    fq1_q: "Що як покупець надіслав іншу суму?", fq1_a: "Суми порівнюються до 2 знаків: 19.889 зараховується як 19.89. USDT у TRC20 зберігає 6 знаків, тож невеликий хвіст (19.889 проти 19.89) - це норма, платіж усе одно зловиться. Якщо сума справді інша (напр. 19.88 проти 19.89) - збігу немає й вебхука немає: замовлення лишається created і згорає за 24 години. Гроші вже на твоєму гаманці, тож домовлятися з покупцем - тобі; ми цей платіж зіставити не можемо.",
+    fq2_q: "Як повернути оплату?", fq2_a: "Гроші йдуть одразу на гаманець, який ти вказав у замовленні - ми їх не тримаємо, тому повернення робиш ти сам: тим самим гаманцем. Від нас нічого запитувати не потрібно.",
+    fq3_q: "Чому тільки TRC20?", fq3_a: "USDT у мережі Tron має найнижчу комісію (~1$) і це стандарт для продажу ботів та індикаторів. Інші мережі можна додати пізніше.",
+    fq4_q: "Мій API-ключ у безпеці?", fq4_a: "Тримай його на сервері. Ніколи не клади у фронтенд-код. Ключ один на акаунт; загубив - відновлюй через Telegram-бота.",
+    fq5_q: "Що як перевищу ліміт плану?", fq5_a: "API відповість 402 Payment Required з підказкою. Онови тариф на сторінці підписки - ключ активується протягом хвилини після того, як ми знайдемо оплату.",
+    fq6_q: "Як написати в підтримку?", fq6_a: "Telegram: @CleanTradeSupport_bot - зазвичай відповідаємо за кілька годин. Вкажи order_id або API-ключ - і ми допоможемо.",
+    fq7_q: "Покупець каже, що заплатив, а вебхук не прийшов. Що робити?", fq7_a: "Відкрий замовлення. Якщо статус ще \"created\" - переказу, який збігається, ще не бачили: покупець міг надіслати іншу суму, в іншій мережі або після завершення строку. Правило публічне: замовлення закривається, коли вхідний переказ USDT TRC20 рівно на суму замовлення приходить на гаманець, вказаний у цьому замовленні, після його створення і до кінця строку. Це може перевірити будь-хто на Tronscan за гаманцем із замовлення - блокчейн і є записом. Надішли нам order_id - і ми віддамо журнал перевірок по ньому: вікно часу, скільки разів перевіряли гаманець і що бачили.",
+    footer: "CleanTrade Payment API · прийом USDT (TRC20) за унікальною сумою", f_home: "Головна", f_docs: "Swagger-доки", f_support: "Підтримка"
+  },
+  ru: {
+    title: "Интеграция - CleanTrade Payment API",
+    h1: "Интеграция - 5 минут до первого платежа",
+    sub: "Всё, чтобы принимать USDT (TRC20) в своём боте или на сайте. Копируй примеры - они работают как есть.",
+    cta_swagger: "Попробовать в Swagger",
+    s_h: "Как это работает - 4 шага",
+    s1_n: "ШАГ 1", s1_h: "Получаешь API-ключ", s1_p: "Выбери тариф - получаешь ключ <b>sp_live_...</b> (free сразу, платный - в течение минуты после того, как мы найдём оплату). Он идентифицирует тебя и считает лимит плана.",
+    s2_n: "ШАГ 2", s2_h: "Создаёшь заказ", s2_p: "Вызываешь POST /v1/orders со своим TRC20-кошельком. Получаешь уникальную сумму (9.57, 9.84…) для этого заказа - тот же адрес возвращается в ответе.",
+    s3_n: "ШАГ 3", s3_h: "Покупатель платит", s3_p: "Показываешь покупателю сумму и свой адрес. Он отправляет USDT (TRC20) - мы видим перевод на этом кошельке и шлём твой вебхук.",
+    s4_n: "ШАГ 4", s4_h: "Вебхук → выдача", s4_p: "Мы ловим оплату за ~30 сек и шлём вебхук с tx_id. Твой код выдаёт ключ, файл или доступ.",
+    c_h: "Готовый код", c_sub: "Выбери язык. Оба примера делают одно: создают заказ и ждут оплату.",
+    c_note: "wallet обязателен: передавай свой TRC20-адрес в каждом заказе. Суммы уникальны в пределах этого кошелька, поэтому два мерчанта могут использовать одну сумму.",
+    wh_h: "Приёмник вебхуков (автовыдача)", wh_sub: "Проще всего: мы сами вызываем ТВОЙ url, когда приходит оплата. Готовый приёмник на Python (aiohttp):",
+    wh_note: "Payload вебхука: {\"order_id\",\"product_id\",\"status\":\"paid\",\"amount\",\"wallet\",\"tx_id\",\"paid_at\",\"customer_ref\"}. Повторяем до 5 раз, если твой сервер не ответил 200.",
+    wh_sig: "Каждая доставка подписана: заголовки X-CleanTrade-Timestamp и X-CleanTrade-Signature (HMAC-SHA256 от timestamp + \".\" + сырое тело запроса, префикс sha256=). Секрет подписи персональный для твоего аккаунта: приходит в Telegram вместе с API-ключом и отдаётся через GET /v1/subscribers/me. Проверяй подпись и свежесть timestamp до того, как выдать товар.",
+    faq_h: "Вопросы",
+    fq1_q: "Что если покупатель отправил другую сумму?", fq1_a: "Суммы сравниваются до 2 знаков: 19.889 засчитывается как 19.89. USDT в TRC20 хранит 6 знаков, поэтому небольшой хвост (19.889 против 19.89) - это норма, платёж всё равно поймается. Если сумма действительно другая (напр. 19.88 против 19.89) - совпадения нет и вебхука нет: заказ остаётся created и сгорает за 24 часа. Деньги уже на твоём кошельке, так что договариваться с покупателем - тебе; мы этот платёж сопоставить не можем.",
+    fq2_q: "Как вернуть оплату?", fq2_a: "Деньги идут сразу на кошелёк, который ты указал в заказе - мы их не держим, поэтому возврат делаешь ты сам, с того же кошелька. Запрашивать что-то у нас не нужно.",
+    fq3_q: "Почему только TRC20?", fq3_a: "USDT в сети Tron имеет самую низкую комиссию (~1$) и это стандарт для продажи ботов и индикаторов. Другие сети можно добавить позже.",
+    fq4_q: "Мой API-ключ в безопасности?", fq4_a: "Держи его на сервере. Никогда не клади во фронтенд-код. Ключ один на аккаунт; потерял - восстанавливай через Telegram-бота.",
+    fq5_q: "Что если превышу лимит плана?", fq5_a: "API ответит 402 Payment Required с подсказкой. Обнови тариф на странице подписки - ключ активируется в течение минуты после того, как мы найдём оплату.",
+    fq6_q: "Как связаться с поддержкой?", fq6_a: "Telegram: @CleanTradeSupport_bot - обычно отвечаем в течение нескольких часов. Укажи order_id или API-ключ - и мы поможем.",
+    fq7_q: "Покупатель говорит, что заплатил, а вебхук не пришёл. Что делать?", fq7_a: "Открой заказ. Если статус ещё \"created\" - совпадающего перевода пока не видели: покупатель мог отправить другую сумму, в другой сети или после истечения срока. Правило публичное: заказ зачитывается, когда входящий перевод USDT TRC20 ровно на сумму заказа приходит на кошелёк, указанный в этом заказе, после его создания и до конца срока. Это может проверить любой на Tronscan по кошельку из заказа - блокчейн и есть запись. Пришли нам order_id - и мы отдадим журнал проверок по нему: окно времени, сколько раз проверяли кошелёк и что видели.",
+    footer: "CleanTrade Payment API · приём USDT (TRC20) по уникальной сумме", f_home: "Главная", f_docs: "Swagger-доки", f_support: "Поддержка"
+  }
+};
+function applyLang(l){
+  document.documentElement.lang = l;
+  const t = I18N[l] || I18N.en;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const v = t[el.dataset.i18n];
+    if (v === undefined) return;
+    if (el.tagName === 'TEXT') el.textContent = v; else el.innerHTML = v;
+  });
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === l));
+  try { localStorage.setItem('pay_lang', l); } catch(e){}
+}
+function setLang(l){ applyLang(l); }
+function switchTab(id){
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.id === 'tab-' + id));
+}
+document.addEventListener('DOMContentLoaded', () => { applyLang(localStorage.getItem('pay_lang') || 'en'); });
+</script>
+
+</body>
+</html>

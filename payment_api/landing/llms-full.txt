@@ -1,0 +1,85 @@
+# CleanTrade Payment API - full documentation for LLMs
+
+## About
+
+CleanTrade Payment API lets developers accept USDT (TRC20) payments in their bots, microservices and small e-commerce without running their own chain watcher. The core idea is **unique amounts**: every order gets a random amount (e.g. 9.57 USDT), the buyer sends exactly that amount to the TRC20 address returned with the order, and CleanTrade detects the payment on-chain and confirms it via webhook. Every order is paid to the TRC20 wallet the merchant passes in the request; CleanTrade takes no percentage - merchants pay a flat monthly subscription.
+
+## Why it exists
+
+Classic crypto gateways charge 0.5% (NOWPayments, Plisio) to 1%+ (Coinbase Commerce, CoinGate, BitPay) of every payment, are custodial by default, and often require KYC and business verification. CleanTrade removes the percentage fee, the KYC step and the integration work: $0 percentage, no KYC, API key in about a minute. You do not need a chain-watcher of your own: the money goes straight to your own wallet, and CleanTrade only watches that address and matches the unique amount.
+
+## Supported network
+
+USDT on TRC20 (Tron). The buyer pays to the TRC20 wallet passed in the order - the merchant's own address. No smart contracts involved, no extra gas for the merchant.
+
+## Getting started
+
+1. Get an API key: choose a plan at https://pay.cleantrade.info/subscribe.html (Free tier: $0, up to 5 orders/month).
+2. Create an order:
+
+```
+POST https://pay.cleantrade.info/v1/orders
+X-API-Key: YOUR_KEY
+Content-Type: application/json
+
+{"product_id": "my_product", "wallet": "TYourTRC20Wallet...", "webhook_url": "https://my.site/hook"}
+```
+
+Response:
+
+```
+{"order_id": "abc123", "amount": 9.57, "wallet": "T...", "status": "created"}
+```
+
+3. Show the buyer the amount and the address returned with the order. When the buyer pays, CleanTrade detects the match in ~30 seconds.
+4. Receive the webhook with tx_id and deliver the product (key, file, access) automatically.
+
+## API endpoints
+
+| Method | Path | Description |
+| --- | --- | --- |
+| POST | /v1/orders | Create an order with your TRC20 wallet; returns a unique amount for that wallet |
+| GET | /v1/orders/{id} | Check order status |
+| POST | /v1/subscribe | Public: subscribe to a plan (pay with USDT), returns api_key on activation |
+| GET | /v1/subscribers/me | Get info about the current subscriber |
+| GET | /healthz | Health check |
+
+Authentication: header `X-API-Key`. Full spec: https://pay.cleantrade.info/openapi.json (Swagger UI: https://pay.cleantrade.info/docs).
+
+## Webhooks
+
+On payment, a webhook is sent to the merchant's `webhook_url` with the payload containing order_id, tx_id, amount and status. Delivery is retried up to 5 times. Webhooks are included in every plan.
+
+## Payment matching and evidence
+An order is credited only when an incoming USDT (TRC20) transfer reaches the wallet named in that order, its amount equals the order amount (tolerance 0.005 USDT), its block time is later than the order creation time, and its tx_id has not already been credited to another order. Nothing else counts: not a memo, not a screenshot, not a message from the buyer. A transfer that arrives after the order expired is not credited - the funds are already on the merchant's wallet.
+The TRON blockchain is the authoritative record and it is public: a merchant, a buyer or a third party can check the wallet and the transfer on Tronscan without CleanTrade. In addition, CleanTrade keeps an append-only audit log per order (`order_audit.jsonl`): order creation, the expected wallet and amount, every blockchain check (count, time, channel, what was seen), the matched tx_id with its block time, and every webhook attempt with the HTTP response. The merchant can request that record for a specific order; it is the evidence used when a payment is disputed.
+
+## Pricing
+
+- Free: $0/mo - up to 5 orders, webhooks with retries.
+- Starter: $9.99/mo - up to 100 orders, webhooks with 5 attempts.
+- Pro: $29.99/mo - up to 3000 orders, webhooks with 5 attempts.
+- Business: $79.99/mo - unlimited orders, dedicated support.
+- Yearly plans (crypto has no auto-renewal, so a year is one payment): Starter Yearly $99.90, Pro Yearly $299.90, Business Yearly $799.90 - 12 months for the price of 10 (two months free, ~17% cheaper per month).
+
+Exceeding the plan limit returns HTTP 402 Payment Required (the upgrade trigger).
+
+## FAQ
+
+**How does CleanTrade detect payments?** Each order gets a unique amount, unique within that wallet. The buyer sends exactly that amount to the TRC20 address from the order. The poller scans that address every ~30 seconds; when a transfer with that amount arrives after the order was created, the order becomes paid and the webhook fires.
+
+**Where do the payments go?** To the TRC20 wallet you set in the order. CleanTrade never holds the funds and does not open wallets for merchants. Two merchants can use the same amount, because matching is per wallet.
+
+**What are the fees?** No percentage. Free plan $0; paid plans are flat subscriptions: Starter $9.99, Pro $29.99, Business $79.99 per month. Yearly options cost 10 monthly prices for 12 months (Starter $99.90, Pro $299.90, Business $799.90 per year) - two months free, no auto-renewal needed.
+
+**Do I need KYC or registration?** No. API key in about a minute - no documents, no business registration, no approval queue.
+
+**Which blockchain and token?** USDT on TRC20 (Tron). No smart contracts and no extra gas for the merchant.
+
+**How fast is payment detection?** The poller checks every ~30 seconds, so orders usually become paid within a minute of the transfer.
+**How is this different from @CryptoBot / Crypto Pay?** Both take USDT in a Telegram bot. The difference is the shape: @CryptoBot is a bot with its own internal balance and a Telegram UI; CleanTrade is a plain HTTP API that your own code drives - unique amounts, webhooks, auto-delivery.
+**Why not self-host BTCPay Server?** BTCPay is free, powerful and non-custodial - if you want to run and maintain your own node. CleanTrade is the same idea as a managed API: no server, no chain-sync, no updates to babysit. You POST an order and we watch the chain and wake your webhook.
+
+## Acceptable Use
+
+CleanTrade may not be used to accept payments for illegal goods, fraud, malware, sanctions evasion, or anything that violates local or international law. Full policy: https://pay.cleantrade.info/aup.html

@@ -1,0 +1,14 @@
+[Unit]
+Description=Stablecoin Payment API (CleanProd)
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/root/CleanProd
+EnvironmentFile=/root/CleanProd/.env
+ExecStart=/root/CleanProd/.venv/bin/uvicorn payment_api.main:app --host 127.0.0.1 --port 8080
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

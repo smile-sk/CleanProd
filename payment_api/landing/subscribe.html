@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="shortcut icon" href="/favicon.ico">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Choose a CleanTrade plan (Free, Starter $9.99, Pro $29.99, Business $79.99), pay with USDT (TRC20) and get your API key in minutes - no KYC, no registration.">
+<link rel="canonical" href="https://pay.cleantrade.info/subscribe.html">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CleanTrade Payment API">
+<meta property="og:url" content="https://pay.cleantrade.info/subscribe.html">
+<meta property="og:title" content="Subscribe - CleanTrade Payment API">
+<meta property="og:description" content="Choose a CleanTrade plan (Free, Starter $9.99, Pro $29.99, Business $79.99), pay with USDT and get your API key - no KYC, no registration.">
+<meta property="og:image" content="https://pay.cleantrade.info/og-image.png">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Subscribe - CleanTrade Payment API">
+<meta name="twitter:description" content="Get a CleanTrade API key in minutes: flat subscription, no percentage, no KYC.">
+<meta name="twitter:image" content="https://pay.cleantrade.info/og-image.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Subscribe - CleanTrade Payment API","url":"https://pay.cleantrade.info/subscribe.html","description":"Choose a CleanTrade plan (Free, Starter $9.99, Pro $29.99, Business $79.99), pay with USDT and get your API key.","isPartOf":{"@type":"WebSite","name":"CleanTrade Payment API","url":"https://pay.cleantrade.info/"}}
+</script>
+
+<title data-i18n="title">Subscribe - CleanTrade Payment API</title>
+<style>
+  :root{
+    --bg:#070b16; --panel:rgba(17,25,46,.72); --line:rgba(120,150,210,.16);
+    --text:#e9eefb; --muted:#93a1c3; --acc:#4f8cff; --acc2:#2ecc8f; --warn:#ffb84d;
+    --glass:rgba(255,255,255,.04); --radius:16px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:var(--bg);color:var(--text);
+    font:16px/1.55 -apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+    overflow-x:hidden;min-height:100vh;
+  }
+  /* ---- animated aurora background ---- */
+  .bgfx{position:fixed;inset:0;z-index:-2;overflow:hidden;background:var(--bg)}
+  .bgfx::before{
+    content:"";position:absolute;inset:-20%;
+    background:
+      radial-gradient(38% 32% at 22% 18%, rgba(46,204,143,.20), transparent 60%),
+      radial-gradient(42% 36% at 78% 26%, rgba(79,140,255,.18), transparent 62%),
+      radial-gradient(50% 42% at 50% 88%, rgba(120,80,255,.14), transparent 64%),
+      radial-gradient(30% 26% at 88% 78%, rgba(46,204,143,.12), transparent 60%);
+    filter:blur(24px);
+    animation:aurora 26s ease-in-out infinite alternate;
+  }
+  @keyframes aurora{
+    0%{transform:translate3d(-2%,-1%,0) scale(1) rotate(0deg)}
+    50%{transform:translate3d(2%,2%,0) scale(1.08) rotate(2deg)}
+    100%{transform:translate3d(-1%,1%,0) scale(1.04) rotate(-2deg)}
+  }
+  .bgfx::after{
+    content:"";position:absolute;inset:0;opacity:.5;
+    background-image:
+      linear-gradient(rgba(120,150,210,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(120,150,210,.05) 1px, transparent 1px);
+    background-size:44px 44px;
+    mask-image:radial-gradient(70% 60% at 50% 30%, #000 30%, transparent 78%);
+  }
+  .wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+  /* ---- header ---- */
+  header{position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);
+         background:rgba(7,11,22,.72);border-bottom:1px solid var(--line)}
+  .hrow{display:flex;align-items:center;justify-content:space-between;gap:16px;height:64px}
+  .logo{font-weight:800;font-size:18px;letter-spacing:.3px;display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none}
+  .logo:hover,.logo:active,.logo:focus{color:inherit;text-decoration:none}
+  .logo .dot{width:12px;height:12px;border-radius:50%;background:var(--acc2);
+             box-shadow:0 0 12px var(--acc2);animation:pulse 2.4s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+  .logo span{color:var(--acc2)}
+  .hright{display:flex;align-items:center;gap:14px}
+  .hnav{display:flex;align-items:center;gap:14px;margin-right:6px}
+  .hnav a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:700;padding:7px 12px;border-radius:9px;transition:.2s}
+  .hnav a:hover{color:var(--text);background:var(--glass)}
+  .lang{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+  .lang button{background:transparent;border:none;color:var(--muted);font-size:13px;font-weight:700;
+               padding:6px 14px;border-radius:8px;cursor:pointer;letter-spacing:.4px;transition:.2s;font-family:inherit}
+  .lang button:hover{color:var(--text);background:rgba(46,204,143,.08)}
+  .lang button.active{background:var(--acc2);color:#05231a;box-shadow:0 2px 10px rgba(46,204,143,.35)}
+  /* ---- subscribe ---- */
+  main{max-width:820px;margin:0 auto;padding:56px 20px 20px}
+  h1{font-size:34px;line-height:1.16;margin-bottom:10px;font-weight:800;
+     background:linear-gradient(115deg,#fff 20%,#bcd4ff 55%,#7fe8c0 90%);
+     -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{color:var(--muted);margin-bottom:22px;font-size:16px}
+  .billing{display:inline-flex;background:var(--panel);border:1px solid var(--line);
+           border-radius:12px;padding:4px;margin-bottom:24px;gap:4px}
+  .b-btn{background:transparent;border:none;color:var(--muted);font-size:14px;font-weight:700;
+         padding:9px 18px;border-radius:9px;cursor:pointer;transition:.2s;font-family:inherit;letter-spacing:.3px}
+  .b-btn:hover{color:var(--text)}
+  .b-btn.active{background:linear-gradient(135deg,var(--acc2),#1fae7c);color:#05231a;
+                box-shadow:0 4px 16px rgba(46,204,143,.3)}
+  .b-btn .save{font-size:11px;font-weight:800;background:rgba(255,184,77,.16);color:var(--warn);
+               border:1px solid rgba(255,184,77,.35);border-radius:6px;padding:2px 7px;margin-left:6px;
+               vertical-align:1px;white-space:nowrap}
+  .b-btn.active .save{background:rgba(5,35,26,.62);color:#fff;border-color:rgba(255,255,255,.45)}
+  .p-save{display:none;font-size:10.5px;font-weight:800;color:var(--acc2);
+          background:rgba(46,204,143,.12);border:1px solid rgba(46,204,143,.35);border-radius:6px;
+          padding:1px 6px;margin-left:6px;vertical-align:2px}
+  .plans.yearly .p-save{display:inline-block}
+  .plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:26px}
+  .plan{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+        padding:20px 18px;cursor:pointer;transition:.22s;backdrop-filter:blur(8px);position:relative}
+  .plan:hover{transform:translateY(-3px);border-color:rgba(46,204,143,.4);box-shadow:0 14px 40px rgba(10,16,32,.6)}
+  .plan.sel{border-color:rgba(46,204,143,.55);box-shadow:0 0 0 1px rgba(46,204,143,.35),0 16px 44px rgba(46,204,143,.12)}
+  .plan .p-name{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1.3px;font-weight:700}
+  .plan .p-price{font-size:26px;font-weight:800;margin:8px 0 3px}
+  .plan .p-price span{font-size:13px;color:var(--muted);font-weight:500}
+  .plan .p-limit{font-size:12.5px;color:var(--muted)}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:7px;font-weight:600}
+  .field input{width:100%;background:rgba(7,11,22,.9);border:1px solid var(--line);color:var(--text);
+    border-radius:12px;padding:13px 15px;font-size:15px;outline:none;transition:.2s;font-family:inherit}
+  .field input:focus{border-color:var(--acc2);box-shadow:0 0 0 3px rgba(46,204,143,.12)}
+  .field input::placeholder{color:var(--muted);opacity:.6}
+  .adv{margin:0 0 16px;border:1px solid var(--line);border-radius:12px;background:rgba(7,11,22,.45);overflow:hidden}
+  .adv summary{cursor:pointer;padding:13px 15px;font-size:13px;font-weight:700;color:var(--muted);list-style:none;transition:.2s}
+  .adv summary::-webkit-details-marker{display:none}
+  .adv summary:hover{color:var(--text)}
+  .adv summary::before{content:"\203A";display:inline-block;margin-right:8px;font-size:15px;line-height:1;transition:.2s;transform:translateY(1px)}
+  .adv[open] summary::before{transform:translateY(1px) rotate(90deg)}
+  .adv[open]{padding-bottom:14px}
+  .adv .field{margin:0 15px 10px}
+  .advhint{font-size:12.5px;color:var(--muted);line-height:1.5;margin:0 15px}
+  .steps{margin:16px 0 4px;font-size:13px;color:var(--muted);line-height:1.6;text-align:center}
+  .btn{display:block;width:100%;background:linear-gradient(135deg,var(--acc2),#1fae7c);color:#05231a;
+       border:none;border-radius:12px;padding:15px;font-size:16px;font-weight:800;cursor:pointer;
+       margin-top:10px;box-shadow:0 8px 30px rgba(46,204,143,.25);transition:.2s;font-family:inherit}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(46,204,143,.4)}
+  .btn:disabled{opacity:.55;transform:none}
+  .result{display:none;margin-top:26px;background:var(--panel);border:1px solid var(--line);
+          border-radius:var(--radius);padding:22px;backdrop-filter:blur(8px)}
+  .result.show{display:block}
+  .result .row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;
+               border-bottom:1px dashed rgba(120,150,210,.12);font-size:14px}
+  .result .row:last-child{border-bottom:none}
+  .result .k{color:var(--muted)}
+  .result .v{font-weight:600;word-break:break-all;text-align:right}
+  .result .v.big{color:var(--acc2);font-size:20px;font-weight:800}
+  .status{margin-top:14px;font-size:13px;color:var(--muted);min-height:18px}
+  .status.ok{color:var(--acc2)}
+  .status.err{color:#ff6b6b}
+  .api-key{margin-top:16px;background:rgba(7,11,22,.9);border:1px solid var(--acc2);border-radius:12px;
+           padding:14px 16px;font-family:Consolas,monospace;font-size:14px;color:var(--acc2);
+           word-break:break-all;user-select:all;box-shadow:0 0 20px rgba(46,204,143,.12)}
+  /* ---- telegram link ---- */
+    .tgb{width:100%;margin-top:8px}
+  .tghint{margin-top:8px;font-size:13px;color:var(--muted)}
+  .tgrow{margin-top:12px;font-size:14px}
+  .tgrow a{color:var(--acc);text-decoration:none;font-weight:600}
+  .tgrow a:hover{text-decoration:underline}
+  /* крупная ссылка-кнопка «открыть бота» - на случай, если браузер заблокировал автопереход */
+  .tgrow a.btn{text-decoration:none;text-align:center;color:#05231a;display:block;box-sizing:border-box}
+  .tgrow a.btn:hover{text-decoration:none;color:#05231a}
+  .tgcmdrow{display:flex;align-items:center;gap:8px;margin-top:8px}
+  .tgcmd{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+         font-family:Consolas,monospace;font-size:13px;padding:10px 12px;border-radius:9px;
+         border:1px solid var(--line);background:var(--glass);color:var(--text);user-select:all}
+  .cpybtn{flex:0 0 auto;background:var(--glass);border:1px solid var(--line);color:var(--text);
+          border-radius:9px;padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer;
+          font-family:inherit;transition:.2s}
+  .cpybtn:hover{border-color:var(--acc2);color:var(--acc2)}
+  .tgok{margin-top:10px;font-size:13px;color:var(--acc2);font-weight:600}
+  /* ---- footer ---- */
+  footer{border-top:1px solid var(--line);margin-top:60px;padding:30px 0;color:var(--muted);font-size:14px}
+  footer a{color:var(--acc2);text-decoration:none}
+  footer a:hover{text-decoration:underline}
+  @media(max-width:560px){
+    h1{font-size:27px}
+    .plans{grid-template-columns:1fr 1fr}
+    .hnav{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="bgfx"></div>
+
+<header>
+  <div class="wrap hrow">
+    <a class="logo" href="/" aria-label="CleanTrade Payment API"><span class="dot"></span>CleanTrade <span>Payment API</span></a>
+      <div class="hright">
+        <nav class="hnav"><a href="/integrate.html" data-i18n="nav_guide">Guide</a></nav>
+        <div class="lang" role="group" aria-label="Language">
+          <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+          <button class="lang-btn" data-lang="ua" onclick="setLang('ua')">UA</button>
+          <button class="lang-btn" data-lang="ru" onclick="setLang('ru')">RU</button>
+        </div>
+      </div>
+  </div>
+</header>
+
+<main>
+  <h1 data-i18n="h1">Subscribe to CleanTrade Payment API</h1>
+  <div class="sub" data-i18n="sub">Pay in USDT - your API key is activated automatically.</div>
+
+  <div class="billing" role="group" aria-label="Billing period">
+    <button class="b-btn active" data-bill="monthly" onclick="setBilling('monthly')">Monthly</button>
+    <button class="b-btn" data-bill="yearly" onclick="setBilling('yearly')"><span data-i18n="b_year">Yearly</span> <span class="save" data-i18n="b_save">2 months free</span></button>
+  </div>
+
+  <div class="plans">
+    <div class="plan sel" data-plan="free" data-plan-m="free" data-plan-y="free" data-price-m="$0" data-price-y="$0" data-suffix-m="/mo" data-suffix-y="/mo" onclick="pickPlan(this)">
+      <div class="p-name" data-i18n="p_free">Free</div>
+      <div class="p-price"><span class="p-amount">$0</span><span class="p-suffix">/mo</span></div>
+      <div class="p-limit" data-i18n="l_free">5 orders/month</div>
+    </div>
+    <div class="plan" data-plan="starter" data-plan-m="starter" data-plan-y="starter_yearly" data-price-m="$9.99" data-price-y="$99.90" data-suffix-m="/mo" data-suffix-y="/yr" onclick="pickPlan(this)">
+      <div class="p-name">Starter</div>
+      <div class="p-price"><span class="p-amount">$9.99</span><span class="p-suffix">/mo</span></div>
+      <div class="p-limit" data-i18n="l_starter">100 orders/month</div>
+      <div class="p-save" data-i18n="p_save">2 months free</div>
+    </div>
+    <div class="plan" data-plan="pro" data-plan-m="pro" data-plan-y="pro_yearly" data-price-m="$29.99" data-price-y="$299.90" data-suffix-m="/mo" data-suffix-y="/yr" onclick="pickPlan(this)">
+      <div class="p-name">Pro</div>
+      <div class="p-price"><span class="p-amount">$29.99</span><span class="p-suffix">/mo</span></div>
+      <div class="p-limit" data-i18n="l_pro">3,000 orders/month</div>
+      <div class="p-save" data-i18n="p_save">2 months free</div>
+    </div>
+    <div class="plan" data-plan="business" data-plan-m="business" data-plan-y="business_yearly" data-price-m="$79.99" data-price-y="$799.90" data-suffix-m="/mo" data-suffix-y="/yr" onclick="pickPlan(this)">
+      <div class="p-name">Business</div>
+      <div class="p-price"><span class="p-amount">$79.99</span><span class="p-suffix">/mo</span></div>
+      <div class="p-limit" data-i18n="l_business">Unlimited</div>
+      <div class="p-save" data-i18n="p_save">2 months free</div>
+    </div>
+  </div>
+
+  <div class="steps" id="steps" data-i18n="steps">Choose a plan → link Telegram → press the button: the key arrives in Telegram</div>
+
+  <div class="field">
+    <label data-i18n="l_tg">Link your Telegram - your key is issued to it</label>
+    <button class="btn tgb" id="tgbtn" onclick="tgLink()" data-i18n="tg_btn">Link Telegram</button>
+    <div class="tghint" id="tghint" data-i18n="tg_hint">Press the button - you get a code and a link to our support bot.</div>
+    <div class="tgrow" id="tgrow" style="display:none">
+      <a class="btn" id="tga" href="#" target="_blank" rel="noopener"><span data-i18n="tg_open">Open Telegram and press Start</span></a>
+      <div class="tghint" data-i18n="tg_manual">Did not open? Send our bot this command:</div>
+      <div class="tgcmdrow">
+        <span class="tgcmd" id="tgcmd"></span>
+        <button class="cpybtn" id="tgcopy" onclick="copyCmd()" data-i18n="tg_copy">Copy</button>
+      </div>
+    </div>
+    <div class="tgok" id="tgok" style="display:none"></div>
+    <button class="btn tgb" id="mykey" onclick="myKey()" style="display:none" data-i18n="tg_mykey">My key</button>
+    <input id="tgcode" type="hidden" value="">
+  </div>
+  <details class="adv">
+    <summary data-i18n="adv">Advanced - for developers</summary>
+    <div class="field">
+      <label for="wh" data-i18n="l_wh">Webhook URL (optional)</label>
+      <input id="wh" type="text" placeholder="https://your-bot.example.com/webhook" autocomplete="off">
+    </div>
+    <div class="advhint" data-i18n="l_wh_hint">Only if your own bot or backend must receive the key. After payment we send it there as JSON automatically. Leave it empty - the key comes to your Telegram anyway.</div>
+  </details>
+
+  <button class="btn" id="go" onclick="subscribe()" data-i18n="go">Create order</button>
+
+  <div class="result" id="res">
+    <div class="row"><span class="k" data-i18n="r_plan">Plan</span><span class="v" id="r_plan"></span></div>
+    <div class="row"><span class="k" data-i18n="r_period">Period</span><span class="v" id="r_days"></span></div>
+    <div class="row" id="row_amount"><span class="k" data-i18n="r_amount">Send exactly</span><span class="v big" id="r_amount"></span></div>
+    <div class="row" id="row_wallet"><span class="k">USDT (TRC20)</span><span class="v" id="r_wallet"></span></div>
+    <div class="row"><span class="k" data-i18n="r_order">Order</span><span class="v" id="r_order"></span></div>
+    <div class="api-key" id="key" style="display:none"></div>
+  </div>
+
+  <div class="status" id="status"></div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span data-i18n="footer">CleanTrade Payment API · accept USDT (TRC20) with unique amounts</span> ·
+    <a href="/docs" data-i18n="f_docs">Swagger docs</a> · <a href="/openapi.json" data-i18n="f_oas">OpenAPI</a> · <a href="https://t.me/CleanTradeSupport_bot?start=pay" data-i18n="f_support">Support</a> · <a href="/terms.html" data-i18n="f_terms">Terms</a>
+  </div>
+</footer>
+
+<script>
+const I18N = {
+  en: { title:"Subscribe - CleanTrade Payment API", nav_guide:"Guide",
+        h1:"Subscribe to CleanTrade Payment API", sub:"Pay in USDT - your API key is activated automatically.",
+        steps:"Choose a plan → link Telegram → press the button: the key arrives in Telegram",
+        p_free:"Free", l_free:"5 orders/month", l_starter:"100 orders/month", l_pro:"3,000 orders/month",
+        l_business:"Unlimited", b_save:"2 months free", p_save:"2 months free", b_year:"Yearly",
+        r_period:"Period", p_yr:"/yr",
+        l_tg:"Link your Telegram - your key is issued to it",
+        tg_btn:"Link Telegram",
+        tg_reopen:"Open Telegram again",
+        tg_hint:"Press the button - Telegram opens with our support bot. Press Start there and your key appears here.",
+        tg_connecting:"Getting the link...",
+        tg_popup:"Telegram did not open - press the green button below.",
+        tg_manual:"Did not open? Send our bot this command:",
+        tg_copy:"Copy",
+        tg_copied:"Copied",
+        tg_open:"Open Telegram and press Start",
+        tg_steps:"Almost there: open Telegram, press Start in our bot and come back - we are watching for the confirmation and will continue by itself.",
+        tg_wait:"Waiting for confirmation in Telegram...", tg_ok:"Telegram linked",
+        tg_need:"link your Telegram first", tg_exp:"the code expired - link again",
+        tg_mykey:"My key", tg_sent:"The key was also sent to you in Telegram.",
+        tg_who:"Telegram",
+        l_wh:"Webhook URL (optional)", go:"Create order",
+        adv:"Advanced - for developers",
+        l_wh_hint:"Only if your own bot or backend must receive the key. After payment we send it there as JSON automatically. Leave it empty - the key comes to your Telegram anyway.",
+        go_free:"Get free API key",
+        r_plan:"Plan", r_amount:"Send exactly", r_order:"Order",
+        s_wait:"Waiting for payment...", until:"the order is valid until", s_paid:"Payment received! Your API key:",
+        s_free_ok:"Free plan activated - your API key:",
+        s_err:"Error: ", footer:"CleanTrade Payment API · accept USDT (TRC20) with unique amounts",
+        f_docs:"Swagger docs", f_oas:"OpenAPI", f_support:"Support", f_terms:"Terms" },
+  ua: { title:"Підписка - CleanTrade Payment API", nav_guide:"Гайд",
+        h1:"Підписка на CleanTrade Payment API", sub:"Сплатіть у USDT - ваш API-ключ активується автоматично.",
+        steps:"Оберіть тариф → прив'яжіть Telegram → натисніть кнопку: ключ надійде в Telegram",
+        p_free:"Free", l_free:"5 замовлень/міс", l_starter:"100 замовлень/міс", l_pro:"3 000 замовлень/міс",
+        l_business:"Безліміт", b_save:"2 місяці безкоштовно", p_save:"2 місяці безкоштовно", b_year:"Рік",
+        r_period:"Період", p_yr:"/рік",
+        l_tg:"Прив'яжіть Telegram - на нього видається ключ",
+        tg_btn:"Прив'язати Telegram",
+        tg_reopen:"Відкрити Telegram знову",
+        tg_hint:"Натисніть кнопку - відкриється Telegram з нашим ботом підтримки. Натисніть Start, і ключ з'явиться тут.",
+        tg_connecting:"Отримуємо посилання...",
+        tg_popup:"Telegram не відкрився - натисніть зелену кнопку нижче.",
+        tg_manual:"Не відкрилось? Надішліть нашому боту цю команду:",
+        tg_copy:"Копіювати",
+        tg_copied:"Скопійовано",
+        tg_open:"Відкрити Telegram і натиснути Start",
+        tg_steps:"Майже все: відкрийте Telegram, натисніть Start у нашому боті й поверніться - ми стежимо за підтвердженням і продовжимо самі.",
+        tg_wait:"Чекаємо підтвердження в Telegram...", tg_ok:"Telegram прив'язано",
+        tg_need:"спочатку прив'яжіть Telegram", tg_exp:"код прострочено - прив'яжіть знову",
+        tg_mykey:"Мій ключ", tg_sent:"Ключ також надіслано вам у Telegram.",
+        tg_who:"Telegram",
+        l_wh:"Webhook URL (необов\'язково)", go:"Створити замовлення",
+        adv:"Розширене - для розробників",
+        l_wh_hint:"Лише якщо ваш власний бот чи бекенд має отримувати ключ. Після оплати ми надішлемо його туди автоматично у форматі JSON. Залиште поле порожнім - ключ однаково прийде у Telegram.",
+        go_free:"Отримати безкоштовний ключ",
+        r_plan:"Тариф", r_amount:"Перекажіть рівно", r_order:"Замовлення",
+        s_wait:"Чекаємо на оплату...", until:"замовлення дійсне до", s_paid:"Оплата отримана! Ваш API-ключ:",
+        s_free_ok:"Free-тариф активовано - ваш API-ключ:",
+        s_err:"Помилка: ", footer:"CleanTrade Payment API · прийом USDT (TRC20) за унікальною сумою",
+        f_docs:"Swagger-доки", f_oas:"OpenAPI", f_support:"Підтримка", f_terms:"Умови" },
+  ru: { title:"Подписка - CleanTrade Payment API", nav_guide:"Гайд",
+        h1:"Подписка на CleanTrade Payment API", sub:"Оплатите в USDT - ваш API-ключ активируется автоматически.",
+        steps:"Выберите тариф → привяжите Telegram → нажмите кнопку: ключ придёт в Telegram",
+        p_free:"Free", l_free:"5 заказов/мес", l_starter:"100 заказов/мес", l_pro:"3 000 заказов/мес",
+        l_business:"Безлимит", b_save:"2 месяца бесплатно", p_save:"2 месяца бесплатно", b_year:"Год",
+        r_period:"Период", p_yr:"/год",
+        l_tg:"Привяжите Telegram - ключ выдаётся на него",
+        tg_btn:"Привязать Telegram",
+        tg_reopen:"Открыть Telegram снова",
+        tg_hint:"Нажмите кнопку - откроется Telegram с нашим ботом поддержки. Нажмите там Start, и ключ появится здесь.",
+        tg_connecting:"Получаем ссылку...",
+        tg_popup:"Telegram не открылся - нажмите зелёную кнопку ниже.",
+        tg_manual:"Не открылось? Отправьте нашему боту эту команду:",
+        tg_copy:"Копировать",
+        tg_copied:"Скопировано",
+        tg_open:"Открыть Telegram и нажать Start",
+        tg_steps:"Почти всё: откройте Telegram, нажмите Start в нашем боте и вернитесь - мы следим за подтверждением и продолжим сами.",
+        tg_wait:"Ждём подтверждения в Telegram...", tg_ok:"Telegram привязан",
+        tg_need:"сначала привяжите Telegram", tg_exp:"код истёк - привяжите заново",
+        tg_mykey:"Мой ключ", tg_sent:"Ключ также отправлен вам в Telegram.",
+        tg_who:"Telegram",
+        l_wh:"Webhook URL (необязательно)", go:"Создать заказ",
+        adv:"Расширенное - для разработчиков",
+        l_wh_hint:"Только если ваш собственный бот или бекенд должен получать ключ. После оплаты мы отправим его туда автоматически в формате JSON. Оставьте поле пустым - ключ всё равно придёт вам в Telegram.",
+        go_free:"Получить бесплатный ключ",
+        r_plan:"Тариф", r_amount:"Переведите ровно", r_order:"Заказ",
+        s_wait:"Ждём оплату...", until:"заказ действует до", s_paid:"Оплата получена! Ваш API-ключ:",
+        s_free_ok:"Тариф Free активирован - ваш API-ключ:",
+        s_err:"Ошибка: ", footer:"CleanTrade Payment API · приём USDT (TRC20) по уникальной сумме",
+        f_docs:"Swagger-доки", f_oas:"OpenAPI", f_support:"Поддержка", f_terms:"Условия" }
+};
+function applyLang(l){
+  document.documentElement.lang = l;
+  const t = I18N[l] || I18N.en;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const v = t[el.dataset.i18n];
+    if (v === undefined) return;
+    if (el.tagName === 'TEXT') el.textContent = v; else el.innerHTML = v;
+  });
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === l));
+  try { localStorage.setItem('pay_lang', l); } catch(e){}
+  updateGo();
+  paintStatus();
+}
+function setLang(l){ applyLang(l); }
+document.addEventListener('DOMContentLoaded', () => { applyLang(localStorage.getItem('pay_lang') || 'en'); setBilling(BILL); });
+
+let BILL = 'monthly';
+let PLAN = 'free';
+function isFree(){ return String(PLAN || '').indexOf('free') === 0; }
+function updateGo(){
+  const t = I18N[document.documentElement.lang] || I18N.en;
+  const b = document.getElementById('go');
+  if (!b) return;
+  let price = '';
+  const sel = document.querySelector('.plan.sel');
+  if (sel) {
+    const a = sel.querySelector('.p-amount'), sfx = sel.querySelector('.p-suffix');
+    if (a && sfx) price = ' - ' + a.textContent + sfx.textContent;
+  }
+  b.textContent = isFree() ? (t.go_free || t.go) : (t.go + price);
+}
+function setBilling(b) {
+  BILL = b;
+  document.querySelectorAll('.b-btn').forEach(x => x.classList.toggle('active', x.dataset.bill === b));
+  document.querySelectorAll('.plan').forEach(p => {
+    const y = b === 'yearly';
+    p.querySelector('.p-amount').textContent = y ? (p.dataset.priceY || p.dataset.priceM) : p.dataset.priceM;
+    p.querySelector('.p-suffix').textContent = y ? (p.dataset.suffixY || p.dataset.suffixM) : p.dataset.suffixM;
+    p.dataset.plan = y ? (p.dataset.planY || p.dataset.planM || p.dataset.plan) : (p.dataset.planM || p.dataset.plan);
+  });
+  const pbox = document.querySelector('.plans');
+  if (pbox) pbox.classList.toggle('yearly', b === 'yearly');
+  const sel = document.querySelector('.plan.sel');
+  if (sel) PLAN = sel.dataset.plan;
+  updateGo();
+}
+function pickPlan(el) {
+  document.querySelectorAll('.plan').forEach(p => p.classList.remove('sel'));
+  el.classList.add('sel');
+  PLAN = el.getAttribute('data-plan');
+  updateGo();
+}
+
+let POLL = null;
+/* Статус собирается из ЧАСТЕЙ: часть-ключ берётся из словаря и перерисовывается
+   при смене языка, часть-текст (ответ сервера) идёт как есть. Без этого гость,
+   переключивший язык после ошибки, видел строку на прежнем языке. 26.10.2026 */
+let LAST_STATUS = null;
+function showStatusParts(parts, cls) {
+  LAST_STATUS = { parts: parts || [], cls: cls || '' };
+  paintStatus();
+}
+function showStatus(msg, cls) {
+  showStatusParts([{ raw: msg }], cls);
+}
+function paintStatus() {
+  const s = document.getElementById('status');
+  if (!s) return;
+  const t = I18N[document.documentElement.lang] || I18N.en;
+  let msg = '';
+  if (LAST_STATUS) {
+    msg = (LAST_STATUS.parts || []).map(p => p.key ? (t[p.key] || '') : (p.raw == null ? '' : p.raw)).join('');
+  }
+  s.textContent = msg;
+  s.className = 'status' + (LAST_STATUS && LAST_STATUS.cls ? ' ' + LAST_STATUS.cls : '');
+}
+/* detail приходит и строкой, и списком (422 от валидатора) - иначе гость
+   видел [object Object] вместо причины. */
+function errText(d, st){
+  let x = d && d.detail;
+  if (x && typeof x === 'object') {
+    try { x = Array.isArray(x) ? x.map(e => (e && (e.msg || e.type)) || 'data').join('; ') : JSON.stringify(x); }
+    catch (e) { x = String(x); }
+  }
+  return x || st;
+}
+
+function showKey(key) {
+  const k = document.getElementById('key');
+  k.style.display = 'block';
+  k.textContent = key || '';
+}
+/* ---- Telegram: личность клиента (tg_id из подписи Telegram, не @username) ---- */
+let TG = { code: '', wait: null, link: '', pending: false };
+/* Открываем бота: всплывающей вкладкой; заблокировал - подсказываем про кнопку ниже. */
+function openBot(url){
+  let w = null;
+  try { w = window.open(url, '_blank', 'noopener'); } catch (e) {}
+  if (!w) showStatusParts([{key:'tg_popup'}], 'err');
+}
+function copyCmd(){
+  const t = T();
+  const el = document.getElementById('tgcmd');
+  const txt = el ? el.textContent : '';
+  const b = document.getElementById('tgcopy');
+  const done = () => { if (b) { b.textContent = t.tg_copied; setTimeout(() => { b.textContent = t.tg_copy; }, 1500); } };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(done).catch(() => { legacyCopy(txt); done(); });
+  } else { legacyCopy(txt); done(); }
+}
+function legacyCopy(txt){
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+  } catch (e) {}
+}
+function T(){ return I18N[document.documentElement.lang] || I18N.en; }
+async function tgLink(){
+  const t = T();
+  const btn = document.getElementById('tgbtn');
+  if (TG.code && TG.link) { openBot(TG.link); return; }   /* код уже есть - открываем бота снова, новый не создаём */
+  btn.disabled = true;
+  showStatusParts([{key:'tg_connecting'}]);
+  try {
+    const r = await fetch('/v1/tg/start', { method: 'POST' });
+    const d = await r.json();
+    if (!r.ok) { showStatusParts([{key:'s_err'},{raw: errText(d, r.status)}], 'err'); return; }
+    TG.code = d.code; TG.link = d.deep_link;
+    document.getElementById('tgcode').value = d.code;
+    document.getElementById('tgcmd').textContent = '/start payauth_' + d.code;
+    document.getElementById('tga').href = d.deep_link;
+    document.getElementById('tgrow').style.display = '';
+    document.getElementById('tgok').style.display = 'none';
+    document.getElementById('mykey').style.display = 'none';
+    btn.setAttribute('data-i18n', 'tg_reopen'); btn.textContent = t.tg_reopen;
+    openBot(d.deep_link);
+    showStatusParts([{key:'tg_wait'}]);
+    clearInterval(TG.wait);
+    TG.wait = setInterval(() => pollTg(d.code), 3000);
+  } catch (e) { showStatusParts([{key:'s_err'},{raw: e.message}], 'err'); }
+  finally { btn.disabled = false; }   /* кнопка больше не «умирает» на 15 минут */
+}
+async function pollTg(code){
+  const t = T();
+  try {
+    const r = await fetch('/v1/tg/status?code=' + encodeURIComponent(code));
+    const d = await r.json();
+    if (!r.ok) {
+      clearInterval(TG.wait); document.getElementById('tgbtn').disabled = false;
+      showStatusParts([{key:'s_err'},{raw: errText(d, r.status)}], 'err'); return;
+    }
+    if (d.status === 'confirmed') {
+      clearInterval(TG.wait);
+      const who = d.username ? '@' + d.username : ('id ' + d.tg_id);
+      const ok = document.getElementById('tgok');
+      ok.style.display = '';
+      ok.textContent = t.tg_ok + ' - ' + who;
+      document.getElementById('mykey').style.display = '';
+      if (d.api_key) {
+        document.getElementById('res').classList.add('show');
+        document.getElementById('r_plan').textContent = (d.plan_name || d.plan || '');
+        document.getElementById('row_amount').style.display = 'none';
+        document.getElementById('row_wallet').style.display = 'none';
+        showStatusParts([{key:'s_free_ok'}], 'ok');
+        showKey(d.api_key);
+      } else { showStatus(''); }
+      if (TG.pending) { TG.pending = false; subscribe(); }   /* ждали Start - продолжаем сами */
+    } else if (d.status === 'expired') {
+      clearInterval(TG.wait);
+      TG.code = ''; TG.link = '';
+      const b = document.getElementById('tgbtn');
+      b.disabled = false;
+      b.setAttribute('data-i18n', 'tg_btn'); b.textContent = t.tg_btn;
+      document.getElementById('tgrow').style.display = 'none';
+      showStatusParts([{key:'tg_exp'}], 'err');
+    }
+  } catch (e) {}
+}
+/* «Мой ключ»: ключ по подтверждённому Telegram - ключ больше не теряется */
+/* 401 «Telegram не подтверждён» - не тупик, а шаг: открыть бота и ждать Start.
+   Раньше человек видел сырую английскую строку «open the link and press Start»
+   и уходил (гость из Белграда, 26.10.2026). Теперь показываем шаг по-своему,
+   держим строку с ботом открытой и сами продолжаем, когда придёт подтверждение. */
+function needTg(t, code){
+  if (code === 'tg_code_not_found') { TG.code = ''; TG.link = ''; }
+  const row = document.getElementById('tgrow');
+  if (TG.link && row) { row.style.display = ''; const a = document.getElementById('tga'); if (a) a.href = TG.link; }
+  const b = document.getElementById('tgbtn');
+  if (b) { b.setAttribute('data-i18n', 'tg_open'); b.textContent = t.tg_open; b.disabled = false; }
+  TG.pending = true;
+  showStatusParts([{key: code === 'tg_code_not_found' ? 'tg_exp' : 'tg_steps'}], 'err');
+  if (TG.code) { clearInterval(TG.wait); TG.wait = setInterval(() => pollTg(TG.code), 3000); }
+}
+
+async function myKey(){
+  const t = T();
+  if (!TG.code) { showStatusParts([{key:'s_err'},{key:'tg_need'}], 'err'); return; }
+  try {
+    const r = await fetch('/v1/mykey', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tg_code: TG.code })
+    });
+    const d = await r.json();
+    if (!r.ok) { showStatusParts([{key:'s_err'},{raw: errText(d, r.status)}], 'err'); return; }
+    document.getElementById('res').classList.add('show');
+    document.getElementById('r_plan').textContent = (d.plan_name || d.plan) + ' · ' + (d.status || '');
+    document.getElementById('r_days').textContent = String(d.plan_expires_at || '').slice(0, 10);
+    document.getElementById('r_order').textContent = '-';
+    document.getElementById('row_amount').style.display = 'none';
+    document.getElementById('row_wallet').style.display = 'none';
+    showStatusParts([{key:'s_paid'}], 'ok');
+    showKey(d.api_key || '');
+  } catch (e) { showStatusParts([{key:'s_err'},{raw: e.message}], 'err'); }
+}
+async function subscribe() {
+  const t = T();
+  const code = document.getElementById('tgcode').value.trim();
+  const wh = document.getElementById('wh').value.trim();
+  if (!code) { showStatusParts([{key:'s_err'},{key:'tg_need'}], 'err'); return; }
+  const btn = document.getElementById('go');
+  btn.disabled = true;
+  try {
+    const r = await fetch('/v1/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan: PLAN, tg_code: code, webhook_url: wh || null })
+    });
+    const d = await r.json();
+    if (!r.ok) {
+      if (d.code === 'tg_not_confirmed' || d.code === 'tg_code_not_found') { needTg(t, d.code); btn.disabled = false; return; }
+      showStatusParts([{key:'s_err'},{raw: errText(d, r.status)}], 'err'); btn.disabled = false; return;
+    }
+    document.getElementById('res').classList.add('show');
+    document.getElementById('r_plan').textContent = (d.plan_name || d.plan) + ' ($' + d.plan_price + ')';
+    document.getElementById('r_days').textContent = (d.plan_days || 30) + ' days';
+    document.getElementById('r_order').textContent = d.order_id || '-';
+    if (d.status === 'paid' && d.api_key) {
+      /* Free (0 USDT): платить нечего - ключ выдан сразу, ждать нечего */
+      document.getElementById('row_amount').style.display = 'none';
+      document.getElementById('row_wallet').style.display = 'none';
+      showStatusParts([{key:'s_free_ok'}], 'ok');
+      showKey(d.api_key);
+      btn.disabled = false;
+      return;
+    }
+    document.getElementById('row_amount').style.display = '';
+    document.getElementById('row_wallet').style.display = '';
+    document.getElementById('r_amount').textContent = d.amount + ' USDT';
+    document.getElementById('r_wallet').textContent = d.wallet;
+    let until = '';
+    if (d.expires_at) {
+      try {
+        until = ' · ' + (t.until || 'until') + ' ' +
+          new Date(d.expires_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      } catch(e) {}
+    }
+    showStatusParts([{key:'s_wait'},{raw: until}]);
+    pollStatus(d.order_id);
+  } catch (e) {
+    showStatusParts([{key:'s_err'},{raw: e.message}], 'err'); btn.disabled = false;
+  }
+}
+async function pollStatus(oid) {
+  clearInterval(POLL);
+  POLL = setInterval(async () => {
+    try {
+      const r = await fetch('/v1/orders/' + oid);
+      const d = await r.json();
+      if (d.status === 'paid') {
+        clearInterval(POLL);
+        showStatusParts([{key:'s_paid'}], 'ok');
+        showKey(d.api_key || '');
+        document.getElementById('go').disabled = false;
+      } else if (d.status === 'expired') {
+        clearInterval(POLL);
+        showStatusParts([{key:'s_err'},{raw: d.status}], 'err');
+        document.getElementById('go').disabled = false;
+      }
+    } catch (e) {}
+  }, 5000);
+}
+</script>
+
+</body>
+</html>

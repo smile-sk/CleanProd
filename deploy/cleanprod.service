@@ -1,0 +1,15 @@
+[Unit]
+Description=CleanProd unified botfarm (sales + access + signals)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/CleanProd
+ExecStart=/root/CleanProd/.venv/bin/python main.py
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

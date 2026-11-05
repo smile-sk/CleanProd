@@ -1,0 +1,29 @@
+# CleanTrade - CleanTrail Indicator & CleanTrade Screener
+
+> CleanTrail Pine Script indicator with confirmed trend signals and CleanTrade Telegram screener with real-time crypto alerts. One-time payment, lifetime access. No subscription.
+
+## CleanTrade Screener (Telegram bot)
+Real-time alerts delivered to Telegram:
+- Impulse Moves (price + OI + volume spikes) - bullish and bearish
+- Fair Value Gaps (FVG)
+- Liquidations over $100,000
+- Session Open/Close timings
+
+Monitored pairs: BTC, ETH, SOL, XRP, DOGE, PEPE, LDO, ADA, BNB, WIF, TON, LINK, ENA, LTC, ONDO
+
+## CleanTrail Indicator (Pine Script)
+- Clean trend-following strategy with confirmed signals
+- Practical filters: EMA, RSI, Volume, ATR, Divergences
+- Trailing stop logic for flexible exit planning
+- Support & Resistance Zones and Pivot Levels displayed on charts
+- Works for trend entries, scalping & reversals; intraday, swing traders & beginners
+
+Delivery: ZIP archive with the .pine script and a PDF setup & user guide.
+
+## Pricing
+- One-time payment: 9.99 USDT (TRC20), lifetime access, no subscription
+
+## Links
+- Telegram bot (get access): https://t.me/CleanTrade_bot?start=landing
+- Support: https://t.me/CleanTradeSupport_bot
+- CleanTrade Payment API (USDT TRC20, 0% fees): https://pay.cleantrade.info/
